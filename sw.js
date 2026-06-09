@@ -1,10 +1,22 @@
-const CACHE_NAME = "multi-game-scorer-v9";
+const CACHE_NAME = "multi-game-scorer-v21";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css",
-  "./app.js",
-  "./manifest.json",
+  "./styles.css?v=21",
+  "./app.js?v=21",
+  "./games/index.js?v=21",
+  "./games/shared.js?v=12",
+  "./games/fiveHundred.js?v=12",
+  "./games/spades.js?v=12",
+  "./games/hearts.js?v=12",
+  "./games/canasta.js?v=14",
+  "./games/golf.js?v=18",
+  "./games/euchre.js?v=19",
+  "./games/ohHell.js?v=19",
+  "./games/phase10.js?v=19",
+  "./games/general.js?v=19",
+  "./games/cribbage.js?v=21",
+  "./manifest.json?v=14",
   "./icon.svg"
 ];
 

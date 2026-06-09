@@ -315,6 +315,14 @@ button:disabled {
   font-weight: 900;
 }
 
+.score.negative {
+  color: var(--red);
+}
+
+[data-theme="dark"] .score.negative {
+  color: #ff8a8a;
+}
+
 .dealer-pill,
 .mini-pill {
   border-radius: 999px;
@@ -641,6 +649,449 @@ fieldset.field {
   text-align: center;
 }
 
+.hearts-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.hearts-summary span,
+.score-warning,
+.moon-banner {
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  padding: 8px 10px;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.hearts-summary span {
+  background: var(--panel-2);
+  color: var(--muted);
+}
+
+.score-warning {
+  margin-bottom: 12px;
+  background: #fff1f0;
+  color: var(--bad);
+}
+
+.moon-banner {
+  margin-bottom: 12px;
+  background: #fff8dd;
+  color: #7c4f13;
+}
+
+.canasta-note {
+  margin: 10px 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  color: var(--muted);
+  padding: 8px 10px;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.canasta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.golf-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.round-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.crib-board {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.crib-track {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.62);
+  padding: 10px;
+}
+
+.crib-track-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.crib-track-head span {
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.crib-holes {
+  display: grid;
+  grid-template-columns: repeat(31, 1fr);
+  gap: 5px;
+}
+
+.crib-hole {
+  aspect-ratio: 1;
+  min-width: 6px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: rgba(23, 33, 28, 0.16);
+}
+
+.crib-hole.marker {
+  border-color: rgba(215, 164, 73, 0.72);
+}
+
+.crib-hole.filled {
+  background: rgba(15, 81, 50, 0.36);
+}
+
+.crib-hole.active {
+  background: var(--red);
+  border-color: rgba(0, 0, 0, 0.28);
+  box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.18);
+}
+
+.quick-points {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.quick-point {
+  min-height: 42px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: white;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.quick-point.active {
+  border-color: rgba(15, 81, 50, 0.6);
+  background: #e6f2ea;
+}
+
+.canasta-team {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.62);
+  padding: 10px;
+}
+
+.golf-player {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.62);
+  padding: 10px;
+}
+
+.round-player {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.62);
+  padding: 10px;
+}
+
+.golf-player.eliminated {
+  opacity: 0.72;
+}
+
+.canasta-team h3 {
+  margin: 0 0 10px;
+  font-size: 0.98rem;
+}
+
+.golf-player h3 {
+  margin: 0 0 10px;
+  font-size: 0.98rem;
+}
+
+.round-player h3 {
+  margin: 0 0 10px;
+  font-size: 0.98rem;
+}
+
+.golf-hand {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.golf-column {
+  display: grid;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.42);
+  padding: 7px;
+}
+
+.golf-column.closed {
+  background: var(--panel-2);
+}
+
+.golf-hand select {
+  min-height: 52px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  color: var(--ink);
+  font-weight: 900;
+  text-align: center;
+}
+
+.golf-hand select:disabled {
+  opacity: 0.48;
+}
+
+.golf-close {
+  min-height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: white;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.golf-close.active {
+  background: #e6f2ea;
+  color: var(--ink);
+  border-color: rgba(15, 81, 50, 0.6);
+}
+
+.golf-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.golf-columns span {
+  min-height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.canasta-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.canasta-breakdown span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--muted);
+  padding: 5px 8px;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.round-total {
+  margin-top: 10px;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+  font-size: 1.75rem;
+  font-weight: 900;
+}
+
+.hearts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.hearts-player {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.62);
+  padding: 10px;
+}
+
+.hearts-player h3 {
+  margin: 0 0 10px;
+  font-size: 0.96rem;
+}
+
+.heart-counter {
+  display: grid;
+  grid-template-columns: 42px 1fr 42px;
+  gap: 7px;
+  align-items: center;
+}
+
+.heart-counter button,
+.queen-card {
+  min-height: 42px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: white;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.heart-counter button {
+  font-size: 1.35rem;
+}
+
+.heart-counter output {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: white;
+  color: var(--red);
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+.heart-counter output strong {
+  color: var(--ink);
+}
+
+.queen-card {
+  width: 100%;
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #111827;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.2rem;
+}
+
+.queen-card.active {
+  background: #e8edf5;
+  border-color: #111827;
+  box-shadow: inset 0 0 0 1px rgba(17, 24, 39, 0.22);
+}
+
+[data-theme="dark"] .hearts-player {
+  background: rgba(15, 31, 24, 0.72);
+}
+
+[data-theme="dark"] .canasta-team {
+  background: rgba(15, 31, 24, 0.72);
+}
+
+[data-theme="dark"] .golf-player {
+  background: rgba(15, 31, 24, 0.72);
+}
+
+[data-theme="dark"] .round-player {
+  background: rgba(15, 31, 24, 0.72);
+}
+
+[data-theme="dark"] .crib-track {
+  background: rgba(15, 31, 24, 0.72);
+}
+
+[data-theme="dark"] .crib-hole {
+  background: rgba(246, 240, 223, 0.14);
+}
+
+[data-theme="dark"] .crib-hole.filled {
+  background: rgba(103, 232, 185, 0.28);
+}
+
+[data-theme="dark"] .crib-hole.active {
+  background: #ff8a8a;
+}
+
+[data-theme="dark"] .quick-point {
+  background: #0f1f18;
+  color: var(--ink);
+}
+
+[data-theme="dark"] .quick-point.active {
+  background: #26344e;
+  color: #fff3d4;
+  border-color: rgba(229, 182, 90, 0.56);
+}
+
+[data-theme="dark"] .golf-column {
+  background: rgba(15, 31, 24, 0.5);
+}
+
+[data-theme="dark"] .golf-column.closed {
+  background: #243d33;
+}
+
+[data-theme="dark"] .golf-hand select {
+  background: #0f1f18;
+  color: var(--ink);
+}
+
+[data-theme="dark"] .golf-close {
+  background: #0f1f18;
+  color: var(--muted);
+}
+
+[data-theme="dark"] .golf-close.active {
+  background: #26344e;
+  color: #fff3d4;
+  border-color: rgba(229, 182, 90, 0.56);
+}
+
+[data-theme="dark"] .heart-counter button,
+[data-theme="dark"] .heart-counter output,
+[data-theme="dark"] .queen-card {
+  background: #0f1f18;
+  color: var(--ink);
+}
+
+[data-theme="dark"] .heart-counter output {
+  color: #ff8a8a;
+}
+
+[data-theme="dark"] .heart-counter output strong {
+  color: var(--ink);
+}
+
+[data-theme="dark"] .queen-card.active {
+  background: #26344e;
+  border-color: rgba(229, 182, 90, 0.56);
+}
+
+[data-theme="dark"] .score-warning {
+  background: rgba(180, 35, 24, 0.18);
+}
+
+[data-theme="dark"] .moon-banner {
+  background: rgba(229, 182, 90, 0.16);
+  color: #ffe7a6;
+}
+
 @media (max-width: 540px) {
   .hero {
     grid-template-columns: 1fr;
@@ -697,5 +1148,29 @@ fieldset.field {
 
   .history-item .mini-pill {
     display: none;
+  }
+
+  .hearts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .canasta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .golf-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .round-entry-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .crib-holes {
+    grid-template-columns: repeat(22, 1fr);
+  }
+
+  .quick-points {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
