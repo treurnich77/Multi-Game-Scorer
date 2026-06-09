@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Multi-Game Scorer icon">
+  <defs>
+    <linearGradient id="felt" x1="84" y1="46" x2="430" y2="478" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#176343"/>
+      <stop offset="0.55" stop-color="#0e4938"/>
+      <stop offset="1" stop-color="#10253c"/>
+    </linearGradient>
+    <linearGradient id="feltGlow" x1="116" y1="82" x2="390" y2="420" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2a8a61" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#0b1728" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="cardShadow" x="-40%" y="-35%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#00140c" flood-opacity="0.38"/>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#felt)"/>
+  <rect x="34" y="34" width="444" height="444" rx="88" fill="url(#feltGlow)"/>
+  <path d="M94 384c78 43 177 55 274 23" fill="none" stroke="#e5b65a" stroke-width="14" stroke-linecap="round" opacity="0.26"/>
+
+  <g filter="url(#cardShadow)">
+    <g transform="rotate(-16 173 269)">
+      <rect x="92" y="142" width="162" height="238" rx="22" fill="#1f5f9f" stroke="#164a7d" stroke-width="4"/>
+      <path d="M118 178h110M118 218h110M118 258h110M118 298h110M118 338h110" stroke="#8dc0ed" stroke-width="12" stroke-linecap="round" opacity="0.64"/>
+      <path d="M108 162l132 202" stroke="#0f3a68" stroke-width="7" opacity="0.22"/>
+    </g>
+
+    <g transform="rotate(7 247 238)">
+      <rect x="166" y="100" width="164" height="240" rx="23" fill="#fff8e8" stroke="#dfd5c2" stroke-width="4"/>
+      <text x="194" y="149" font-family="Georgia, serif" font-size="40" font-weight="900" fill="#b91c1c">Q</text>
+      <text x="198" y="188" font-family="Georgia, serif" font-size="38" font-weight="900" fill="#b91c1c">♥</text>
+      <text x="248" y="268" text-anchor="middle" font-family="Georgia, serif" font-size="98" font-weight="900" fill="#b91c1c">♥</text>
+      <text x="302" y="318" font-family="Georgia, serif" font-size="40" font-weight="900" fill="#b91c1c" transform="rotate(180 302 318)">Q</text>
+    </g>
+
+    <g transform="rotate(13 318 286)">
+      <rect x="226" y="148" width="180" height="258" rx="25" fill="#fff8e8" stroke="#dfd5c2" stroke-width="4"/>
+      <text x="254" y="202" font-family="Georgia, serif" font-size="46" font-weight="900" fill="#111827">A</text>
+      <text x="260" y="240" font-family="Georgia, serif" font-size="38" font-weight="900" fill="#111827">♠</text>
+      <text x="316" y="326" text-anchor="middle" font-family="Georgia, serif" font-size="112" font-weight="900" fill="#111827">♠</text>
+    </g>
+  </g>
+</svg>
