@@ -26,6 +26,7 @@ export function actionButtons(g) {
       <button class="primary" data-action="submit">Submit Hand</button>
       <button class="secondary" data-action="undo" ${g.history.length ? "" : "disabled"} title="Undo last hand">Undo</button>
       <button class="secondary" data-action="redo" ${g.undone.length ? "" : "disabled"} title="Redo hand">Redo</button>
+      <button class="secondary" data-action="new-game">New Game</button>
     </div>
   `;
 }
