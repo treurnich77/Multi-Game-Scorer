@@ -1,4 +1,4 @@
-const CACHE_NAME = "multi-game-scorer-v34";
+const CACHE_NAME = "multi-game-scorer-v35";
 const ASSETS = [
   "./",
   "./index.html",
@@ -6,7 +6,7 @@ const ASSETS = [
   "./mvp.css?v=1",
   "./mobile-fix.css?v=3",
   "./polish.css?v=1",
-  "./favourites.css?v=1",
+  "./favourites.css?v=2",
   "./app.js?v=24",
   "./post-mvp.js?v=1",
   "./setup-fix.js?v=1",
