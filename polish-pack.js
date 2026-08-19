@@ -1,0 +1,429 @@
+const CORE_KEY = "multiGameScorer:v6";
+const POLISH_KEY = "multiGameScorer:polish:v1";
+
+const COLOURS = ["emerald", "blue", "violet", "amber", "rose", "teal", "slate", "orange"];
+const PALETTES = [
+  { key: "classic", label: "Classic Felt" },
+  { key: "midnight", label: "Midnight" },
+  { key: "casino", label: "Casino" },
+  { key: "clubhouse", label: "Clubhouse" },
+  { key: "ice", label: "Ice" },
+  { key: "contrast", label: "High Contrast" }
+];
+
+const defaultPolish = {
+  palette: "classic",
+  keepAwake: true,
+  focus: false,
+  dealerByMatch: {}
+};
+
+let wakeLock = null;
+let observerQueued = false;
+
+function readCore() {
+  try {
+    return JSON.parse(localStorage.getItem(CORE_KEY)) || null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCore(state) {
+  localStorage.setItem(CORE_KEY, JSON.stringify(state));
+}
+
+function readPolish() {
+  try {
+    return { ...defaultPolish, ...(JSON.parse(localStorage.getItem(POLISH_KEY)) || {}) };
+  } catch {
+    return { ...defaultPolish };
+  }
+}
+
+function writePolish(patch) {
+  const next = { ...readPolish(), ...patch };
+  localStorage.setItem(POLISH_KEY, JSON.stringify(next));
+  applyPalette(next);
+  applyFocus(next);
+  syncWakeLock();
+  return next;
+}
+
+function isGameScreen(state = readCore()) {
+  return Boolean(state && ["score", "table", "history", "rules"].includes(state.screen));
+}
+
+function applyPalette(polish = readPolish()) {
+  document.documentElement.dataset.palette = polish.palette || "classic";
+  const meta = document.querySelector('meta[name="theme-color"]');
+  const themeColours = {
+    classic: "#0f5132",
+    midnight: "#17243a",
+    casino: "#681c24",
+    clubhouse: "#31543f",
+    ice: "#2b5f7c",
+    contrast: "#111111"
+  };
+  if (meta) meta.content = themeColours[polish.palette] || themeColours.classic;
+}
+
+function applyFocus(polish = readPolish()) {
+  document.documentElement.classList.toggle("game-focus", Boolean(polish.focus) && isGameScreen());
+}
+
+async function releaseWakeLock() {
+  if (!wakeLock) return;
+  try { await wakeLock.release(); } catch {}
+  wakeLock = null;
+}
+
+async function syncWakeLock() {
+  const polish = readPolish();
+  const shouldHold = polish.keepAwake && isGameScreen() && document.visibilityState === "visible";
+  if (!shouldHold) {
+    await releaseWakeLock();
+    return;
+  }
+  if (wakeLock || !navigator.wakeLock?.request) return;
+  try {
+    wakeLock = await navigator.wakeLock.request("screen");
+    wakeLock.addEventListener("release", () => { wakeLock = null; }, { once: true });
+  } catch {}
+}
+
+function ensurePlayerColours() {
+  const state = readCore();
+  if (!state?.players?.length) return state;
+  let changed = false;
+  state.players.forEach((player, index) => {
+    if (!player.color || !COLOURS.includes(player.color)) {
+      player.color = COLOURS[index % COLOURS.length];
+      changed = true;
+    }
+  });
+  if (changed) writeCore(state);
+  return state;
+}
+
+function colourForPlayer(state, id, fallbackIndex = 0) {
+  const player = state?.players?.find((item) => item.id === id);
+  return player?.color && COLOURS.includes(player.color) ? player.color : COLOURS[fallbackIndex % COLOURS.length];
+}
+
+function addPlayerColourControls() {
+  const state = ensurePlayerColours();
+  if (!state || state.screen !== "players") return;
+
+  document.querySelectorAll(".player-card").forEach((card) => {
+    if (card.querySelector(".player-colour-control")) return;
+    const name = card.querySelector(".player-card-main strong")?.textContent?.trim();
+    const player = state.players.find((item) => item.name === name);
+    if (!player) return;
+
+    const avatar = card.querySelector(".avatar");
+    if (avatar) avatar.dataset.playerColour = player.color;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "player-colour-control";
+    button.dataset.playerId = player.id;
+    button.title = "Change player colour";
+    button.innerHTML = `<span class="colour-dot" data-player-colour="${player.color}"></span><span>Colour</span>`;
+    button.addEventListener("click", () => {
+      const latest = readCore();
+      const target = latest?.players?.find((item) => item.id === player.id);
+      if (!target) return;
+      const current = COLOURS.indexOf(target.color);
+      target.color = COLOURS[(current + 1 + COLOURS.length) % COLOURS.length];
+      writeCore(latest);
+      refresh();
+    });
+    card.appendChild(button);
+  });
+}
+
+function addTeamColourStrips() {
+  const state = ensurePlayerColours();
+  if (!state || !isGameScreen(state)) return;
+  const active = state.activeMatches?.[state.gameKey];
+  const sidePlayerIds = active?.sidePlayerIds || [];
+
+  document.querySelectorAll(".score-card").forEach((card, index) => {
+    if (card.querySelector(".team-colour-strip")) return;
+    const ids = sidePlayerIds[index] || [];
+    if (!ids.length) return;
+    const strip = document.createElement("div");
+    strip.className = "team-colour-strip";
+    ids.forEach((id, memberIndex) => {
+      const segment = document.createElement("span");
+      segment.dataset.playerColour = colourForPlayer(state, id, index + memberIndex);
+      strip.appendChild(segment);
+    });
+    card.prepend(strip);
+  });
+}
+
+function setupNames() {
+  return [...document.querySelectorAll('.setup-panel input[data-action="setup-name"]')];
+}
+
+function addSetupTools() {
+  const state = readCore();
+  const panel = document.querySelector(".setup-panel");
+  if (!state || state.screen !== "setup" || !panel || panel.querySelector(".setup-fun-tools")) return;
+
+  const inputs = setupNames();
+  if (inputs.length !== 4) return;
+
+  const tools = document.createElement("div");
+  tools.className = "setup-fun-tools";
+  tools.innerHTML = `<button type="button" class="secondary shuffle-teams">⇄ Shuffle teams</button><span>Enter four names, then mix the partnerships.</span>`;
+  tools.querySelector("button").addEventListener("click", () => {
+    const names = inputs.map((input) => input.value.trim());
+    if (names.some((name) => !name)) {
+      showToast("Enter all four names first.");
+      return;
+    }
+    for (let i = names.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [names[i], names[j]] = [names[j], names[i]];
+    }
+    inputs.forEach((input, index) => {
+      input.value = names[index];
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    showToast("Teams shuffled.");
+  });
+
+  panel.querySelector(".setup-meta")?.before(tools);
+}
+
+function participants(state = readCore()) {
+  if (!state) return [];
+  const active = state.activeMatches?.[state.gameKey];
+  const ids = (active?.sidePlayerIds || []).flat();
+  if (ids.length) {
+    return ids.map((id) => state.players?.find((player) => player.id === id)).filter(Boolean).map((player) => ({ id: player.id, name: player.name }));
+  }
+  return (state.games?.[state.gameKey]?.teams || []).map((name, index) => ({ id: `side-${index}`, name }));
+}
+
+function currentMatchKey(state = readCore()) {
+  return state?.activeMatches?.[state.gameKey]?.id || `legacy-${state?.gameKey || "game"}`;
+}
+
+function addGameTools() {
+  const state = readCore();
+  const toolbar = document.querySelector(".game-toolbar");
+  if (!state || !isGameScreen(state) || !toolbar) return;
+
+  if (!toolbar.querySelector(".focus-toggle")) {
+    const focus = document.createElement("button");
+    focus.type = "button";
+    focus.className = "secondary focus-toggle";
+    focus.textContent = readPolish().focus ? "Full view" : "Focus";
+    focus.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const next = writePolish({ focus: !readPolish().focus });
+      focus.textContent = next.focus ? "Full view" : "Focus";
+    });
+    toolbar.appendChild(focus);
+  }
+
+  if (document.querySelector(".game-tools-panel")) return;
+  const people = participants(state);
+  const matchKey = currentMatchKey(state);
+  const polish = readPolish();
+  const dealerIndex = polish.dealerByMatch?.[matchKey];
+  const dealerName = Number.isInteger(dealerIndex) && people[dealerIndex] ? people[dealerIndex].name : "Not chosen";
+
+  const details = document.createElement("details");
+  details.className = "game-tools-panel";
+  details.innerHTML = `
+    <summary><span>Game tools</span><strong class="dealer-status">Dealer: ${escapeText(dealerName)}</strong></summary>
+    <div class="game-tools-grid">
+      <button type="button" class="secondary" data-tool="dealer">${Number.isInteger(dealerIndex) ? "Next dealer" : "Pick dealer"}</button>
+      <button type="button" class="secondary" data-tool="random">Random player</button>
+      <button type="button" class="secondary" data-tool="coin">Coin flip</button>
+      <button type="button" class="secondary" data-tool="die">Roll D6</button>
+    </div>
+    <div class="tool-result" aria-live="polite"></div>
+  `;
+
+  details.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-tool]");
+    if (!button) return;
+    event.preventDefault();
+    const result = details.querySelector(".tool-result");
+    const latestPeople = participants();
+    if (!latestPeople.length) return;
+
+    if (button.dataset.tool === "dealer") {
+      const latestPolish = readPolish();
+      const current = latestPolish.dealerByMatch?.[matchKey];
+      const nextIndex = Number.isInteger(current) ? (current + 1) % latestPeople.length : Math.floor(Math.random() * latestPeople.length);
+      const dealerByMatch = { ...(latestPolish.dealerByMatch || {}), [matchKey]: nextIndex };
+      writePolish({ dealerByMatch });
+      const name = latestPeople[nextIndex].name;
+      details.querySelector(".dealer-status").textContent = `Dealer: ${name}`;
+      button.textContent = "Next dealer";
+      result.textContent = `${name} deals.`;
+    }
+
+    if (button.dataset.tool === "random") {
+      const choice = latestPeople[Math.floor(Math.random() * latestPeople.length)];
+      result.textContent = `${choice.name} was picked.`;
+    }
+
+    if (button.dataset.tool === "coin") {
+      result.textContent = Math.random() < 0.5 ? "Heads" : "Tails";
+    }
+
+    if (button.dataset.tool === "die") {
+      result.textContent = `You rolled ${Math.floor(Math.random() * 6) + 1}.`;
+    }
+  });
+
+  toolbar.after(details);
+}
+
+function escapeText(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
+}
+
+function matchForCurrentState(state) {
+  const matchId = state?.activeMatches?.[state.gameKey]?.matchId || state?.activeMatches?.[state.gameKey]?.id;
+  return (state?.matches || []).find((match) => match.id === matchId) || (state?.matches || []).find((match) => match.gameKey === state?.gameKey);
+}
+
+function resultShareText(state, match) {
+  const game = match?.gameLabel || state?.games?.[state.gameKey]?.fullName || state?.gameKey || "Game";
+  const sides = match?.sides?.map((side) => side.label) || state?.games?.[state.gameKey]?.teams || [];
+  const scores = match?.scores || state?.games?.[state.gameKey]?.scores || [];
+  const winnerLabels = (match?.winnerIndexes || []).map((index) => sides[index]).filter(Boolean);
+  const result = match?.isTie ? "Tie game" : winnerLabels.length ? `${winnerLabels.join(" & ")} won` : "Match complete";
+  return `${game}: ${result}. ${sides.map((side, index) => `${side} ${scores[index] ?? 0}`).join(" – ")}. Scored with Multi-Game Scorer.`;
+}
+
+function addResultPolish() {
+  const state = readCore();
+  const winner = document.querySelector(".winner-result");
+  if (!state || !winner || winner.querySelector(".result-extras")) return;
+  const match = matchForCurrentState(state);
+
+  const extras = document.createElement("div");
+  extras.className = "result-extras";
+  const meta = [];
+  if (match?.hands) meta.push(`${match.hands} ${match.hands === 1 ? "hand" : "hands"}`);
+  if (match?.startedAt && match?.endedAt) {
+    const minutes = Math.max(1, Math.round((new Date(match.endedAt) - new Date(match.startedAt)) / 60000));
+    if (Number.isFinite(minutes)) meta.push(`${minutes} min`);
+  }
+  extras.innerHTML = `${meta.length ? `<span class="result-meta">${meta.join(" · ")}</span>` : ""}<div class="result-actions"><button type="button" class="secondary share-result">Share result</button><button type="button" class="secondary view-players" data-action="players">Player stats</button></div>`;
+
+  extras.querySelector(".share-result").addEventListener("click", async () => {
+    const text = resultShareText(readCore(), matchForCurrentState(readCore()));
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Game result", text });
+        return;
+      }
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        showToast("Result copied.");
+        return;
+      }
+      window.prompt("Copy your result", text);
+    } catch (error) {
+      if (error?.name !== "AbortError") showToast("Could not share this result.");
+    }
+  });
+
+  winner.appendChild(extras);
+}
+
+function paletteMarkup(selected) {
+  return PALETTES.map((palette) => `
+    <button type="button" class="palette-choice ${selected === palette.key ? "active" : ""}" data-palette-choice="${palette.key}">
+      <span class="palette-preview palette-${palette.key}"><i></i><i></i><i></i></span>
+      <span>${palette.label}</span>
+    </button>
+  `).join("");
+}
+
+function addSettings() {
+  const state = readCore();
+  if (!state || state.screen !== "data") return;
+  const section = document.querySelector(".section-block");
+  if (!section || section.querySelector(".polish-settings")) return;
+  const polish = readPolish();
+  const danger = section.querySelector(".danger-zone");
+
+  const card = document.createElement("div");
+  card.className = "data-card polish-settings";
+  card.innerHTML = `
+    <h3>Game Night Settings</h3>
+    <p>Make the scorer feel like yours.</p>
+    <div class="setting-label">Colour palette</div>
+    <div class="palette-grid">${paletteMarkup(polish.palette)}</div>
+    <label class="wake-setting">
+      <span><strong>Keep screen awake</strong><small>${navigator.wakeLock?.request ? "Prevents the display sleeping during a game." : "Not supported by this browser."}</small></span>
+      <input type="checkbox" ${polish.keepAwake ? "checked" : ""} ${navigator.wakeLock?.request ? "" : "disabled"} />
+    </label>
+  `;
+
+  card.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-palette-choice]");
+    if (!button) return;
+    writePolish({ palette: button.dataset.paletteChoice });
+    card.querySelectorAll(".palette-choice").forEach((item) => item.classList.toggle("active", item === button));
+  });
+  card.querySelector('.wake-setting input[type="checkbox"]')?.addEventListener("change", (event) => {
+    writePolish({ keepAwake: event.target.checked });
+  });
+
+  if (danger) danger.before(card); else section.appendChild(card);
+}
+
+function showToast(message) {
+  let toast = document.querySelector(".polish-toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.className = "polish-toast";
+    toast.setAttribute("role", "status");
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => toast.classList.remove("show"), 1700);
+}
+
+function refresh() {
+  applyPalette();
+  applyFocus();
+  addPlayerColourControls();
+  addTeamColourStrips();
+  addSetupTools();
+  addGameTools();
+  addResultPolish();
+  addSettings();
+  syncWakeLock();
+}
+
+const observer = new MutationObserver(() => {
+  if (observerQueued) return;
+  observerQueued = true;
+  queueMicrotask(() => {
+    observerQueued = false;
+    refresh();
+  });
+});
+observer.observe(document.documentElement, { childList: true, subtree: true });
+
+document.addEventListener("visibilitychange", syncWakeLock);
+document.addEventListener("DOMContentLoaded", refresh);
+window.addEventListener("pagehide", releaseWakeLock);
+queueMicrotask(refresh);
