@@ -1,0 +1,94 @@
+const FAVOURITES_KEY = "multiGameScorer:favourites:v1";
+
+function readFavourites() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(FAVOURITES_KEY));
+    return Array.isArray(saved) ? saved.filter((key) => typeof key === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeFavourites(favourites) {
+  localStorage.setItem(FAVOURITES_KEY, JSON.stringify(favourites));
+}
+
+function updateFavouriteGrid(grid) {
+  const favourites = readFavourites();
+  const wrappers = [...grid.children].filter((node) => node.classList?.contains("favourite-game-wrap"));
+
+  wrappers.forEach((wrapper) => {
+    const gameKey = wrapper.dataset.game;
+    const active = favourites.includes(gameKey);
+    const star = wrapper.querySelector(".favourite-toggle");
+    wrapper.classList.toggle("is-favourite", active);
+    if (star) {
+      star.textContent = active ? "★" : "☆";
+      star.setAttribute("aria-pressed", String(active));
+      star.title = active ? "Remove from favourites" : "Add to favourites";
+    }
+  });
+
+  wrappers
+    .sort((a, b) => {
+      const aIndex = favourites.indexOf(a.dataset.game);
+      const bIndex = favourites.indexOf(b.dataset.game);
+      const aFavourite = aIndex >= 0;
+      const bFavourite = bIndex >= 0;
+
+      if (aFavourite && bFavourite) return aIndex - bIndex;
+      if (aFavourite) return -1;
+      if (bFavourite) return 1;
+      return Number(a.dataset.originalOrder) - Number(b.dataset.originalOrder);
+    })
+    .forEach((wrapper) => grid.appendChild(wrapper));
+}
+
+function enhanceFavouriteGames() {
+  const grid = document.querySelector(".game-grid");
+  if (!grid || grid.dataset.favouritesEnhanced === "true") return;
+
+  const tiles = [...grid.children].filter((node) => node.matches?.(".game-tile[data-game]"));
+  if (!tiles.length) return;
+
+  grid.dataset.favouritesEnhanced = "true";
+
+  tiles.forEach((tile, index) => {
+    const gameKey = tile.dataset.game;
+    const label = tile.querySelector("strong")?.textContent?.trim() || "game";
+    const wrapper = document.createElement("div");
+    wrapper.className = "favourite-game-wrap";
+    wrapper.dataset.game = gameKey;
+    wrapper.dataset.originalOrder = String(index);
+
+    const star = document.createElement("button");
+    star.type = "button";
+    star.className = "favourite-toggle";
+    star.setAttribute("aria-label", `Favourite ${label}`);
+
+    star.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const favourites = readFavourites();
+      const next = favourites.includes(gameKey)
+        ? favourites.filter((key) => key !== gameKey)
+        : [...favourites, gameKey];
+      writeFavourites(next);
+      updateFavouriteGrid(grid);
+    });
+
+    grid.insertBefore(wrapper, tile);
+    wrapper.appendChild(tile);
+    wrapper.appendChild(star);
+  });
+
+  updateFavouriteGrid(grid);
+}
+
+const appRoot = document.getElementById("app");
+if (appRoot) {
+  new MutationObserver(enhanceFavouriteGames).observe(appRoot, { childList: true });
+}
+
+document.addEventListener("DOMContentLoaded", enhanceFavouriteGames);
+queueMicrotask(enhanceFavouriteGames);

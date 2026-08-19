@@ -1,0 +1,43 @@
+.favourite-game-wrap {
+  position: relative;
+  min-width: 0;
+}
+
+.favourite-game-wrap .game-tile {
+  width: 100%;
+  height: 100%;
+}
+
+.favourite-toggle {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #7a5b00;
+  font-size: 22px;
+  line-height: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.favourite-toggle:active {
+  transform: scale(0.96);
+}
+
+.favourite-game-wrap.is-favourite .game-tile {
+  outline: 2px solid rgba(194, 148, 0, 0.45);
+  outline-offset: -2px;
+}
+
+html[data-theme="dark"] .favourite-toggle {
+  background: rgba(28, 33, 39, 0.92);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #f0c34c;
+}
