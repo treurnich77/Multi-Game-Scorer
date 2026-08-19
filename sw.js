@@ -1,13 +1,15 @@
-const CACHE_NAME = "multi-game-scorer-v28";
+const CACHE_NAME = "multi-game-scorer-v29";
 const ASSETS = [
   "./",
   "./index.html",
   "./styles.css?v=21",
   "./mvp.css?v=1",
   "./mobile-fix.css?v=3",
+  "./polish.css?v=1",
   "./app.js?v=24",
   "./post-mvp.js?v=1",
   "./setup-fix.js?v=1",
+  "./polish-pack.js?v=1",
   "./games/index.js?v=21",
   "./games/shared.js?v=12",
   "./games/fiveHundred.js?v=12",
@@ -35,8 +37,6 @@ self.addEventListener("activate", (event) => {
     await Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)));
     await self.clients.claim();
 
-    // Reload any open standalone app window once so a newly activated worker
-    // immediately replaces stale cached HTML instead of waiting for another launch.
     const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
     await Promise.all(windows.map(async (client) => {
       try {
@@ -49,8 +49,6 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
-  // Navigation must prefer the network so the installed PWA does not get stuck
-  // on an old index.html. Offline use still falls back to the cached app shell.
   if (event.request.mode === "navigate") {
     event.respondWith((async () => {
       try {
