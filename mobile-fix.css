@@ -1,9 +1,17 @@
-/* Mobile PWA clearance: keep the fixed bottom navigation from covering controls. */
+/* Mobile PWA clearance: keep fixed navigation from covering controls. */
 .shell {
   padding-bottom: calc(140px + env(safe-area-inset-bottom)) !important;
 }
 
-.setup-panel,
+/* New Match setup already has a Home/back control. Do not overlay the fixed app nav here. */
+.setup-panel + .app-nav {
+  display: none !important;
+}
+
+.setup-panel {
+  margin-bottom: 24px;
+}
+
 .section-block:last-of-type,
 .game-shell > :last-child {
   margin-bottom: 12px;
