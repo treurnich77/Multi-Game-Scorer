@@ -89,6 +89,7 @@ function playerFieldsMarkup() {
 }
 
 function clearSetupError(panel) {
+  if (!panel) return;
   panel.querySelector(".general-setup-error")?.remove();
   panel.querySelector(".form-error")?.remove();
 }
@@ -139,6 +140,11 @@ function renderGeneralSetup(state) {
   if (meta) {
     meta.innerHTML = `<span>${pending.count} players</span><span>Target ${pending.target}</span>`;
   }
+}
+
+function suppressMidMatchPlayerCountControls(state) {
+  if (!state || state.gameKey !== GENERAL_KEY || !["score", "table", "history", "rules"].includes(state.screen)) return;
+  document.querySelectorAll('[data-action="general-add-player"], [data-action="general-remove-player"]').forEach((button) => button.remove());
 }
 
 function ensurePlayer(name, players) {
@@ -233,6 +239,7 @@ function handleInput(event) {
 
   if (target.matches?.("[data-general-setup-target]")) {
     pending.target = target.value;
+    clearSetupError(document.querySelector(".setup-panel"));
     const meta = document.querySelector(".setup-meta");
     const targetNumber = validTarget(target.value);
     if (meta && targetNumber) meta.innerHTML = `<span>${pending.count} players</span><span>Target ${targetNumber}</span>`;
@@ -251,6 +258,7 @@ function handleChange(event) {
   while (nextNames.length < nextCount) nextNames.push("");
   pending.count = nextCount;
   pending.names = nextNames;
+  clearSetupError(document.querySelector(".setup-panel"));
   renderGeneralSetup(state);
 }
 
@@ -268,6 +276,8 @@ function handleClick(event) {
 function refresh() {
   const state = readCore();
   const isGeneralSetup = Boolean(state && state.screen === "setup" && state.gameKey === GENERAL_KEY);
+
+  suppressMidMatchPlayerCountControls(state);
 
   if (!isGeneralSetup) {
     if (wasGeneralSetup) pending = null;
