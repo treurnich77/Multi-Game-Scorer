@@ -1,0 +1,46 @@
+.game-night-hub { margin-top: 18px; }
+.hub-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.hub-card { display:grid; grid-template-columns:auto 1fr; gap:4px 10px; align-items:center; width:100%; padding:16px; border:1px solid var(--line); border-radius:16px; background:var(--panel); color:var(--ink); text-align:left; box-shadow:0 8px 20px rgba(0,0,0,.06); }
+.hub-card strong { font-size:1rem; }
+.hub-card small { grid-column:2; color:var(--muted); line-height:1.35; }
+.hub-icon { grid-row:1 / span 2; display:grid; place-items:center; width:46px; height:46px; border-radius:14px; background:var(--panel-2); font-size:1.55rem; }
+.hub-screen { padding-bottom:40px; }
+.hub-top,.dice-top { display:grid; grid-template-columns:auto 1fr; gap:14px; align-items:start; margin-bottom:16px; }
+.hub-top h1,.dice-top h1,.pass-card h1,.dice-finished h1 { margin:2px 0 6px; }
+.hub-top p,.dice-top p,.pass-card p { margin:0; color:var(--muted); }
+.dice-setup { max-width:680px; margin:0 auto; }
+.dice-player-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:12px 0 16px; }
+.hub-turn-screen { min-height:100vh; padding:calc(18px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom)); background:linear-gradient(180deg,color-mix(in srgb,var(--turn-colour) 34%, #ffffff),color-mix(in srgb,var(--turn-colour) 12%, var(--bg))); color:var(--ink); transition:background .2s ease; }
+[data-theme="dark"] .hub-turn-screen { background:linear-gradient(180deg,color-mix(in srgb,var(--turn-colour) 38%, #111111),color-mix(in srgb,var(--turn-colour) 14%, var(--bg))); }
+.pass-card { max-width:520px; margin:15vh auto 0; padding:28px; border-radius:22px; border:1px solid color-mix(in srgb,var(--turn-colour) 55%, var(--line)); background:var(--panel); box-shadow:0 18px 48px rgba(0,0,0,.18); text-align:center; }
+.pass-card .primary { margin:22px 0 10px; }
+.dice-game { display:block; }
+.dice-board { max-width:720px; margin:0 auto 14px; padding:16px; border-radius:20px; background:rgba(255,255,255,.64); border:1px solid rgba(255,255,255,.5); backdrop-filter:blur(10px); }
+[data-theme="dark"] .dice-board { background:rgba(20,24,28,.68); border-color:rgba(255,255,255,.08); }
+.dice-row { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:14px; }
+.die { min-width:0; min-height:94px; padding:8px 4px; border:2px solid transparent; border-radius:16px; background:var(--panel); color:var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; box-shadow:0 8px 18px rgba(0,0,0,.12); }
+.die span { font-size:2.55rem; line-height:1; }
+.die small { color:var(--muted); font-size:.67rem; }
+.die.held { border-color:var(--turn-colour); transform:translateY(-4px); box-shadow:0 10px 24px color-mix(in srgb,var(--turn-colour) 25%, transparent); }
+.roll-button { min-height:48px; font-size:1rem; }
+.score-choice,.compact-scoreboard { max-width:720px; margin:12px auto; }
+.category-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.category-card { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 12px; border:1px solid var(--line); border-radius:11px; background:var(--panel-2); color:var(--ink); text-align:left; }
+.category-card strong { font-size:1.05rem; }
+.category-card:disabled { opacity:.45; }
+.dice-score-line,.final-score-list div { display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--line); }
+.dice-score-line span,.final-score-list span { font-weight:900; }
+.dice-score-line.active { font-size:1.05rem; }
+.dice-finished { max-width:520px; margin:10vh auto 0; text-align:center; }
+.final-score-list { margin:18px 0; text-align:left; }
+.poker-ranking { display:grid; gap:6px; margin:10px 0 18px; counter-reset:rank; }
+.poker-ranking div { display:grid; grid-template-columns:32px 1fr; gap:8px; align-items:center; padding:8px 10px; border-radius:9px; background:var(--panel-2); }
+.poker-ranking strong { display:grid; place-items:center; width:24px; height:24px; border-radius:50%; background:var(--panel); }
+.holdem-rules h2 { margin-top:22px; }
+@media (max-width:560px) {
+  .hub-grid,.dice-player-fields,.category-grid { grid-template-columns:1fr; }
+  .dice-row { gap:6px; }
+  .die { min-height:78px; border-radius:13px; }
+  .die span { font-size:2.1rem; }
+  .hub-turn-screen { padding-left:10px; padding-right:10px; }
+}
