@@ -43,26 +43,24 @@ function makeControlNonLabel(select) {
   return control.querySelector(".player-colour-select") || select;
 }
 
-function paintSwatch(swatch, hex) {
-  swatch.style.width = "24px";
-  swatch.style.height = "24px";
-  swatch.style.borderRadius = "7px";
-  swatch.style.backgroundColor = hex;
-  swatch.style.border = "2px solid rgba(255,255,255,.85)";
-  swatch.style.boxShadow = "0 0 0 1px rgba(0,0,0,.28)";
-  swatch.style.display = "block";
-}
-
 function paintName(name, hex) {
   name.style.color = hex;
   name.style.webkitTextFillColor = hex;
   name.style.fontWeight = "900";
 }
 
+function syncPlayerColour(select, color = select.value) {
+  const playerId = select.closest(".player-colour-control")?.dataset.playerId;
+  if (!playerId || !color) return;
+  window.dispatchEvent(new CustomEvent("mgs:player-colour-change", {
+    detail: { playerId, color }
+  }));
+}
+
 function enhanceSelect(originalSelect) {
   if (originalSelect.dataset.customColourMenu === "true") return;
 
-  let select = makeControlNonLabel(originalSelect);
+  const select = makeControlNonLabel(originalSelect);
   select.dataset.customColourMenu = "true";
   select.classList.add("native-colour-select");
 
@@ -74,7 +72,6 @@ function enhanceSelect(originalSelect) {
   trigger.className = "custom-colour-trigger";
   trigger.setAttribute("aria-haspopup", "listbox");
   trigger.setAttribute("aria-expanded", "false");
-  trigger.style.gridTemplateColumns = "26px minmax(0, 1fr) auto";
 
   const menu = document.createElement("div");
   menu.className = "custom-colour-menu";
@@ -84,8 +81,7 @@ function enhanceSelect(originalSelect) {
   function refreshTrigger() {
     const key = select.value;
     const hex = COLOUR_HEX[key] || "#666666";
-    trigger.innerHTML = `<span class="custom-colour-swatch" aria-hidden="true"></span><span class="colour-name">${selectedLabel(select)}</span><span class="custom-colour-chevron" aria-hidden="true">▾</span>`;
-    paintSwatch(trigger.querySelector(".custom-colour-swatch"), hex);
+    trigger.innerHTML = `<span class="colour-name">${selectedLabel(select)}</span><span class="custom-colour-chevron" aria-hidden="true">▾</span>`;
     paintName(trigger.querySelector(".colour-name"), hex);
     trigger.setAttribute("aria-label", `Player colour: ${selectedLabel(select)}`);
   }
@@ -99,10 +95,7 @@ function enhanceSelect(originalSelect) {
     choice.dataset.colourValue = option.value;
     choice.setAttribute("role", "option");
     choice.setAttribute("aria-selected", String(option.value === select.value));
-    choice.style.gridTemplateColumns = "26px minmax(0, 1fr) 18px";
-    choice.style.borderLeft = `6px solid ${hex}`;
-    choice.innerHTML = `<span class="custom-colour-swatch" aria-hidden="true"></span><span class="colour-name">${option.textContent}</span>`;
-    paintSwatch(choice.querySelector(".custom-colour-swatch"), hex);
+    choice.innerHTML = `<span class="colour-name">${option.textContent}</span>`;
     paintName(choice.querySelector(".colour-name"), hex);
 
     choice.addEventListener("click", (event) => {
@@ -114,6 +107,7 @@ function enhanceSelect(originalSelect) {
       }
       select.value = option.value;
       select.dispatchEvent(new Event("change", { bubbles: true }));
+      syncPlayerColour(select, option.value);
       closeAllMenus();
     });
     menu.appendChild(choice);
@@ -133,6 +127,7 @@ function enhanceSelect(originalSelect) {
   refreshTrigger();
   picker.append(trigger, menu);
   select.insertAdjacentElement("afterend", picker);
+  syncPlayerColour(select);
 }
 
 function applyCustomColourMenus() {
