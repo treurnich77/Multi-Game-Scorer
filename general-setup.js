@@ -1,10 +1,11 @@
 const CORE_KEY = "multiGameScorer:v6";
 const GENERAL_KEY = "general";
+const SKIP_HOME_ONCE_KEY = "multiGameScorer:skipHomeOnce";
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 12;
 
 let pending = null;
-let wasGeneralSetup = false;
+let activePanel = null;
 let refreshQueued = false;
 
 function readCore() {
@@ -39,25 +40,6 @@ function validTarget(value) {
   return Number.isFinite(target) && target > 0 ? Math.round(target) : null;
 }
 
-function ensurePending(state) {
-  if (pending) return pending;
-  const previous = state?.games?.general;
-  const count = clampPlayerCount(previous?.teams?.length || 4);
-  const target = validTarget(previous?.target) || 100;
-  pending = {
-    count,
-    target,
-    names: Array.from({ length: count }, () => "")
-  };
-  return pending;
-}
-
-function playerCountOptions(selected) {
-  return Array.from({ length: MAX_PLAYERS - MIN_PLAYERS + 1 }, (_, index) => MIN_PLAYERS + index)
-    .map((count) => `<option value="${count}" ${count === selected ? "selected" : ""}>${count}</option>`)
-    .join("");
-}
-
 function escapeText(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({
     "&": "&amp;",
@@ -66,6 +48,28 @@ function escapeText(value) {
     '"': "&quot;",
     "'": "&#039;"
   }[char]));
+}
+
+function freshPending(state) {
+  const previous = state?.games?.general;
+  const count = clampPlayerCount(previous?.teams?.length || 4);
+  const target = validTarget(previous?.target) || 100;
+  return {
+    count,
+    target,
+    names: Array.from({ length: count }, () => "")
+  };
+}
+
+function ensurePending(state) {
+  if (!pending) pending = freshPending(state);
+  return pending;
+}
+
+function playerCountOptions(selected) {
+  return Array.from({ length: MAX_PLAYERS - MIN_PLAYERS + 1 }, (_, index) => MIN_PLAYERS + index)
+    .map((count) => `<option value="${count}" ${count === selected ? "selected" : ""}>${count}</option>`)
+    .join("");
 }
 
 function playerFieldsMarkup() {
@@ -88,26 +92,23 @@ function playerFieldsMarkup() {
   `).join("");
 }
 
-function clearSetupError(panel) {
-  if (!panel) return;
-  panel.querySelector(".general-setup-error")?.remove();
-  panel.querySelector(".form-error")?.remove();
+function updateMeta(panel) {
+  const meta = panel.querySelector(".setup-meta");
+  if (!meta) return;
+  const target = validTarget(pending.target);
+  meta.innerHTML = `<span>${pending.count} players</span><span>Target ${target || "—"}</span>`;
 }
 
-function showSetupError(panel, message) {
-  clearSetupError(panel);
-  const error = document.createElement("div");
-  error.className = "form-error general-setup-error";
-  error.textContent = message;
-  panel.querySelector(".general-setup-options")?.insertAdjacentElement("afterend", error);
+function renderPlayerFields(panel) {
+  const sides = panel.querySelector(".setup-sides");
+  if (sides) sides.innerHTML = playerFieldsMarkup();
+  updateMeta(panel);
 }
 
-function renderGeneralSetup(state) {
-  const panel = document.querySelector(".setup-panel");
-  if (!panel) return;
+function buildGeneralSetup(panel, state) {
   ensurePending(state);
+  panel.dataset.generalSetupVersion = "2";
 
-  panel.dataset.generalSetupEnhanced = "true";
   const intro = panel.querySelector(".panel-intro");
   if (intro) intro.textContent = "Choose the number of players, target score, and player names before starting.";
 
@@ -115,9 +116,8 @@ function renderGeneralSetup(state) {
   if (!options) {
     options = document.createElement("section");
     options.className = "general-setup-options";
-    const datalist = panel.querySelector("#saved-player-names");
-    if (datalist) datalist.insertAdjacentElement("afterend", options);
-    else panel.querySelector(".setup-sides")?.before(options);
+    const sides = panel.querySelector(".setup-sides");
+    if (sides) sides.before(options);
   }
 
   options.innerHTML = `
@@ -129,22 +129,26 @@ function renderGeneralSetup(state) {
     </div>
     <div class="field">
       <label for="general-setup-target">Target score</label>
-      <input id="general-setup-target" type="number" inputmode="numeric" min="1" step="1" data-general-setup-target value="${pending.target}" />
+      <input id="general-setup-target" type="number" inputmode="numeric" min="1" step="1" data-general-setup-target value="${escapeText(pending.target)}" />
     </div>
   `;
 
-  const sides = panel.querySelector(".setup-sides");
-  if (sides) sides.innerHTML = playerFieldsMarkup();
-
-  const meta = panel.querySelector(".setup-meta");
-  if (meta) {
-    meta.innerHTML = `<span>${pending.count} players</span><span>Target ${pending.target}</span>`;
-  }
+  renderPlayerFields(panel);
 }
 
-function suppressMidMatchPlayerCountControls(state) {
-  if (!state || state.gameKey !== GENERAL_KEY || !["score", "table", "history", "rules"].includes(state.screen)) return;
-  document.querySelectorAll('[data-action="general-add-player"], [data-action="general-remove-player"]').forEach((button) => button.remove());
+function clearSetupError(panel) {
+  panel.querySelector(".general-setup-error")?.remove();
+  panel.querySelector(".form-error")?.remove();
+}
+
+function showSetupError(panel, message) {
+  clearSetupError(panel);
+  const error = document.createElement("div");
+  error.className = "form-error general-setup-error";
+  error.textContent = message;
+  const options = panel.querySelector(".general-setup-options");
+  if (options) options.after(error);
+  else panel.prepend(error);
 }
 
 function ensurePlayer(name, players) {
@@ -159,10 +163,9 @@ function ensurePlayer(name, players) {
   return player.id;
 }
 
-function startGeneralMatch() {
-  const panel = document.querySelector(".setup-panel");
+function startGeneralMatch(panel) {
   const state = readCore();
-  if (!panel || !state || state.screen !== "setup" || state.gameKey !== GENERAL_KEY) return;
+  if (!state || state.screen !== "setup" || state.gameKey !== GENERAL_KEY) return;
   ensurePending(state);
 
   const names = pending.names.slice(0, pending.count).map(normalizeName);
@@ -198,7 +201,6 @@ function startGeneralMatch() {
     }
   };
 
-  const matchId = makeId("match");
   const next = {
     ...state,
     players,
@@ -206,7 +208,7 @@ function startGeneralMatch() {
     activeMatches: {
       ...(state.activeMatches || {}),
       general: {
-        id: matchId,
+        id: makeId("match"),
         gameKey: GENERAL_KEY,
         startedAt: new Date().toISOString(),
         sidePlayerIds: playerIds.map((id) => [id]),
@@ -219,75 +221,38 @@ function startGeneralMatch() {
     notice: ""
   };
 
-  pending = null;
   writeCore(next);
+  sessionStorage.setItem(SKIP_HOME_ONCE_KEY, "1");
   location.reload();
 }
 
-function handleInput(event) {
-  const target = event.target;
-  if (!pending) return;
-
-  if (target.matches?.("[data-general-setup-name]")) {
-    const index = Number(target.dataset.playerIndex);
-    if (Number.isInteger(index) && index >= 0 && index < pending.names.length) {
-      pending.names[index] = target.value;
-      clearSetupError(document.querySelector(".setup-panel"));
-    }
-    return;
-  }
-
-  if (target.matches?.("[data-general-setup-target]")) {
-    pending.target = target.value;
-    clearSetupError(document.querySelector(".setup-panel"));
-    const meta = document.querySelector(".setup-meta");
-    const targetNumber = validTarget(target.value);
-    if (meta && targetNumber) meta.innerHTML = `<span>${pending.count} players</span><span>Target ${targetNumber}</span>`;
-  }
-}
-
-function handleChange(event) {
-  const target = event.target;
-  if (!target.matches?.("[data-general-setup-count]")) return;
-  const state = readCore();
-  if (!state || state.screen !== "setup" || state.gameKey !== GENERAL_KEY) return;
-  ensurePending(state);
-
-  const nextCount = clampPlayerCount(target.value);
-  const nextNames = pending.names.slice(0, nextCount);
-  while (nextNames.length < nextCount) nextNames.push("");
-  pending.count = nextCount;
-  pending.names = nextNames;
-  clearSetupError(document.querySelector(".setup-panel"));
-  renderGeneralSetup(state);
-}
-
-function handleClick(event) {
-  const button = event.target.closest("button[data-action='start-match']");
-  if (!button) return;
-  const state = readCore();
-  if (!state || state.screen !== "setup" || state.gameKey !== GENERAL_KEY) return;
-
-  event.preventDefault();
-  event.stopImmediatePropagation();
-  startGeneralMatch();
+function hideMidMatchPlayerButtons(state) {
+  if (!state || state.gameKey !== GENERAL_KEY || ["home", "setup", "players", "matches", "data"].includes(state.screen)) return;
+  document.querySelectorAll('[data-action="general-add-player"], [data-action="general-remove-player"]').forEach((button) => {
+    const parent = button.parentElement;
+    button.remove();
+    if (parent && !parent.querySelector("button")) parent.remove();
+  });
 }
 
 function refresh() {
   const state = readCore();
-  const isGeneralSetup = Boolean(state && state.screen === "setup" && state.gameKey === GENERAL_KEY);
+  if (!state) return;
 
-  suppressMidMatchPlayerCountControls(state);
-
-  if (!isGeneralSetup) {
-    if (wasGeneralSetup) pending = null;
-    wasGeneralSetup = false;
+  if (state.screen === "setup" && state.gameKey === GENERAL_KEY) {
+    const panel = document.querySelector(".setup-panel");
+    if (!panel) return;
+    if (panel !== activePanel) {
+      pending = null;
+      activePanel = panel;
+    }
+    if (panel.dataset.generalSetupVersion !== "2") buildGeneralSetup(panel, state);
     return;
   }
 
-  if (!wasGeneralSetup) pending = null;
-  wasGeneralSetup = true;
-  renderGeneralSetup(state);
+  activePanel = null;
+  pending = null;
+  hideMidMatchPlayerButtons(state);
 }
 
 function queueRefresh() {
@@ -302,9 +267,54 @@ function queueRefresh() {
 const appRoot = document.getElementById("app");
 if (appRoot) {
   new MutationObserver(queueRefresh).observe(appRoot, { childList: true });
-  appRoot.addEventListener("input", handleInput, true);
-  appRoot.addEventListener("change", handleChange, true);
-  appRoot.addEventListener("click", handleClick, true);
+
+  appRoot.addEventListener("input", (event) => {
+    const state = readCore();
+    if (!state || state.screen !== "setup" || state.gameKey !== GENERAL_KEY || !pending) return;
+    const target = event.target;
+    const panel = target.closest(".setup-panel");
+    if (!panel) return;
+
+    if (target.matches?.("[data-general-setup-name]")) {
+      const index = Number(target.dataset.playerIndex);
+      if (Number.isInteger(index) && index >= 0 && index < pending.names.length) {
+        pending.names[index] = target.value;
+        clearSetupError(panel);
+      }
+      return;
+    }
+
+    if (target.matches?.("[data-general-setup-target]")) {
+      pending.target = target.value;
+      clearSetupError(panel);
+      updateMeta(panel);
+    }
+  }, true);
+
+  appRoot.addEventListener("change", (event) => {
+    const state = readCore();
+    if (!state || state.screen !== "setup" || state.gameKey !== GENERAL_KEY || !pending) return;
+    const target = event.target;
+    if (!target.matches?.("[data-general-setup-count]")) return;
+
+    const nextCount = clampPlayerCount(target.value);
+    const nextNames = pending.names.slice(0, nextCount);
+    while (nextNames.length < nextCount) nextNames.push("");
+    pending.count = nextCount;
+    pending.names = nextNames;
+    renderPlayerFields(target.closest(".setup-panel"));
+  }, true);
+
+  appRoot.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-action='start-match']");
+    if (!button) return;
+    const state = readCore();
+    if (!state || state.screen !== "setup" || state.gameKey !== GENERAL_KEY) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    startGeneralMatch(button.closest(".setup-panel"));
+  }, true);
 }
 
 document.addEventListener("DOMContentLoaded", queueRefresh);
