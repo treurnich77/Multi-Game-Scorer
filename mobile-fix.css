@@ -1,0 +1,10 @@
+/* Mobile PWA clearance: keep the fixed bottom navigation from covering controls. */
+.shell {
+  padding-bottom: calc(140px + env(safe-area-inset-bottom)) !important;
+}
+
+.setup-panel,
+.section-block:last-of-type,
+.game-shell > :last-child {
+  margin-bottom: 12px;
+}
