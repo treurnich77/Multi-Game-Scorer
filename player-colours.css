@@ -31,13 +31,30 @@
   background: var(--panel);
   color: var(--ink);
   font-size: .76rem;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .player-colour-select:focus {
   outline: 2px solid var(--good);
   outline-offset: 1px;
 }
+
+.player-colour-select option[value="emerald"] { color: #16845d; }
+.player-colour-select option[value="blue"] { color: #3277c7; }
+.player-colour-select option[value="violet"] { color: #7a58bd; }
+.player-colour-select option[value="amber"] { color: #b47716; }
+.player-colour-select option[value="rose"] { color: #b84661; }
+.player-colour-select option[value="teal"] { color: #167c82; }
+.player-colour-select option[value="slate"] { color: #5e6b78; }
+.player-colour-select option[value="orange"] { color: #c45d22; }
+.player-colour-select option[value="cyan"] { color: #1b8fb8; }
+.player-colour-select option[value="indigo"] { color: #4f5aad; }
+.player-colour-select option[value="lime"] { color: #6f8f2a; }
+.player-colour-select option[value="pink"] { color: #c45695; }
+.player-colour-select option[value="brown"] { color: #7a523a; }
+.player-colour-select option[value="red"] { color: #c23b31; }
+.player-colour-select option[value="navy"] { color: #264a73; }
+.player-colour-select option[value="gold"] { color: #aa8500; }
 
 [data-player-colour="cyan"] { background-color: #1b8fb8 !important; }
 [data-player-colour="indigo"] { background-color: #4f5aad !important; }
