@@ -60,6 +60,11 @@ export const fiveHundred = {
   },
 
   winner(g) {
+    const losingIndex = g.scores.findIndex((score) => score <= -g.target);
+    if (losingIndex !== -1 && g.teams.length === 2) {
+      return `${g.teams[losingIndex === 0 ? 1 : 0]} wins`;
+    }
+
     const top = Math.max(...g.scores);
     if (top < g.target) return "";
     const leaders = g.teams.filter((_, index) => g.scores[index] === top);
@@ -160,7 +165,7 @@ export const fiveHundred = {
         <h3>Play</h3>
         <p>The high bidder takes the kitty, discards back to ten cards, and leads. Players follow suit if able. Trump cards beat non-trumps, and the highest legal card wins the trick.</p>
         <h3>Scoring</h3>
-        <p>If the bidding team makes the contract, it scores the table value. If it fails, it loses that value. The defending team scores 10 points per trick taken. First team to 500 wins.</p>
+        <p>If the bidding team makes the contract, it scores the table value. If it fails, it loses that value. The defending team scores 10 points per trick taken. First team to 500 wins; a team that reaches -500 loses immediately.</p>
       </section>
     `;
   },
