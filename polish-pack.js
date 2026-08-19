@@ -2,6 +2,7 @@ const CORE_KEY = "multiGameScorer:v6";
 const POLISH_KEY = "multiGameScorer:polish:v1";
 
 const COLOURS = ["emerald", "blue", "violet", "amber", "rose", "teal", "slate", "orange"];
+const PARTNERSHIP_GAMES = new Set(["fiveHundred", "spades", "canasta", "euchre"]);
 const PALETTES = [
   { key: "classic", label: "Classic Felt" },
   { key: "midnight", label: "Midnight" },
@@ -19,6 +20,7 @@ const defaultPolish = {
 };
 
 let wakeLock = null;
+let wakeRequestPending = false;
 let observerQueued = false;
 
 function readCore() {
@@ -54,6 +56,23 @@ function isGameScreen(state = readCore()) {
   return Boolean(state && ["score", "table", "history", "rules"].includes(state.screen));
 }
 
+function gameLabel(state, match) {
+  if (match?.gameLabel) return match.gameLabel;
+  const labels = {
+    fiveHundred: "Five Hundred",
+    spades: "Spades",
+    hearts: "Hearts",
+    canasta: "Canasta",
+    golf: "Golf",
+    euchre: "Euchre",
+    ohHell: "Oh Hell",
+    phase10: "Phase 10",
+    general: "General Score Sheet",
+    cribbage: "Cribbage"
+  };
+  return labels[state?.gameKey] || "Game";
+}
+
 function applyPalette(polish = readPolish()) {
   document.documentElement.dataset.palette = polish.palette || "classic";
   const meta = document.querySelector('meta[name="theme-color"]');
@@ -85,11 +104,16 @@ async function syncWakeLock() {
     await releaseWakeLock();
     return;
   }
-  if (wakeLock || !navigator.wakeLock?.request) return;
+  if (wakeLock || wakeRequestPending || !navigator.wakeLock?.request) return;
+  wakeRequestPending = true;
   try {
     wakeLock = await navigator.wakeLock.request("screen");
     wakeLock.addEventListener("release", () => { wakeLock = null; }, { once: true });
-  } catch {}
+  } catch {
+    wakeLock = null;
+  } finally {
+    wakeRequestPending = false;
+  }
 }
 
 function ensurePlayerColours() {
@@ -137,19 +161,24 @@ function addPlayerColourControls() {
       const current = COLOURS.indexOf(target.color);
       target.color = COLOURS[(current + 1 + COLOURS.length) % COLOURS.length];
       writeCore(latest);
-      refresh();
+      const latestColour = target.color;
+      if (avatar) avatar.dataset.playerColour = latestColour;
+      const dot = button.querySelector(".colour-dot");
+      if (dot) dot.dataset.playerColour = latestColour;
+      addTeamColourStrips(true);
     });
     card.appendChild(button);
   });
 }
 
-function addTeamColourStrips() {
+function addTeamColourStrips(force = false) {
   const state = ensurePlayerColours();
   if (!state || !isGameScreen(state)) return;
   const active = state.activeMatches?.[state.gameKey];
   const sidePlayerIds = active?.sidePlayerIds || [];
 
   document.querySelectorAll(".score-card").forEach((card, index) => {
+    if (force) card.querySelector(".team-colour-strip")?.remove();
     if (card.querySelector(".team-colour-strip")) return;
     const ids = sidePlayerIds[index] || [];
     if (!ids.length) return;
@@ -171,7 +200,7 @@ function setupNames() {
 function addSetupTools() {
   const state = readCore();
   const panel = document.querySelector(".setup-panel");
-  if (!state || state.screen !== "setup" || !panel || panel.querySelector(".setup-fun-tools")) return;
+  if (!state || state.screen !== "setup" || !PARTNERSHIP_GAMES.has(state.gameKey) || !panel || panel.querySelector(".setup-fun-tools")) return;
 
   const inputs = setupNames();
   if (inputs.length !== 4) return;
@@ -299,7 +328,7 @@ function matchForCurrentState(state) {
 }
 
 function resultShareText(state, match) {
-  const game = match?.gameLabel || state?.games?.[state.gameKey]?.fullName || state?.gameKey || "Game";
+  const game = gameLabel(state, match);
   const sides = match?.sides?.map((side) => side.label) || state?.games?.[state.gameKey]?.teams || [];
   const scores = match?.scores || state?.games?.[state.gameKey]?.scores || [];
   const winnerLabels = (match?.winnerIndexes || []).map((index) => sides[index]).filter(Boolean);
@@ -324,7 +353,8 @@ function addResultPolish() {
   extras.innerHTML = `${meta.length ? `<span class="result-meta">${meta.join(" · ")}</span>` : ""}<div class="result-actions"><button type="button" class="secondary share-result">Share result</button><button type="button" class="secondary view-players" data-action="players">Player stats</button></div>`;
 
   extras.querySelector(".share-result").addEventListener("click", async () => {
-    const text = resultShareText(readCore(), matchForCurrentState(readCore()));
+    const latestState = readCore();
+    const text = resultShareText(latestState, matchForCurrentState(latestState));
     try {
       if (navigator.share) {
         await navigator.share({ title: "Game result", text });
