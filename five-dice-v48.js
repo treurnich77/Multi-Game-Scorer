@@ -43,6 +43,14 @@ function v48PatchRollFlow() {
   if (!board) return;
   board.querySelector(".roll-safety")?.remove();
 
+  // The base Five Dice renderer adds its own direct-child roll button whenever
+  // there is no pending undo. v48 owns the post-roll controls, so remove that
+  // base button before adding/updating the v48 control set. This guarantees
+  // there is never a duplicate Roll again button after Undo accidental roll.
+  [...board.children].forEach((child) => {
+    if (child.classList?.contains("roll-button")) child.remove();
+  });
+
   let controls = board.querySelector(".v48-roll-controls");
   if (!controls) {
     controls = document.createElement("div");
