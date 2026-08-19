@@ -36,8 +36,13 @@
     <g transform="translate(78 327) rotate(-6)">
       <rect width="300" height="126" rx="11" fill="#efe7d0" stroke="#cfc3a8" stroke-width="3"/>
       <path d="M12 32h276M12 61h276M12 90h276M70 10v105M130 10v105M190 10v105M250 10v105" stroke="#3c6f56" stroke-width="2" opacity=".75"/>
-      <text x="17" y="28" font-family="Arial,sans-serif" font-size="21" fill="#195b39">63</text><text x="17" y="57" font-size="21" fill="#195b39">53</text><text x="17" y="86" font-size="21" fill="#195b39">45</text><text x="17" y="115" font-size="21" fill="#195b39">30</text>
-      <path d="M92 20l10 9 13-18m38 37l9 9 14-20m25 39l9 9 14-20" fill="none" stroke="#6b6b65" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="82" y="27" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#195b39">P1</text>
+      <text x="142" y="27" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#195b39">P2</text>
+      <text x="202" y="27" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#195b39">P3</text>
+      <text x="258" y="27" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#195b39">P4</text>
+      <path d="M84 46l7 7 11-15m44 9l7 7 11-15m43 10l7 7 11-15m43 9l7 7 11-15" fill="none" stroke="#6b6b65" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M84 74l7 7 11-15m44 9l7 7 11-15m43 10l7 7 11-15" fill="none" stroke="#6b6b65" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M84 102l7 7 11-15m103 9l7 7 11-15m43 9l7 7 11-15" fill="none" stroke="#6b6b65" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
 
     <g transform="translate(243 222) rotate(-7)">
