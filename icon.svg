@@ -1,43 +1,59 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Multi-Game Scorer icon">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Scorer app icon">
   <defs>
-    <linearGradient id="felt" x1="84" y1="46" x2="430" y2="478" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#176343"/>
-      <stop offset="0.55" stop-color="#0e4938"/>
-      <stop offset="1" stop-color="#10253c"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#0b6a3b"/>
+      <stop offset="1" stop-color="#06331f"/>
     </linearGradient>
-    <linearGradient id="feltGlow" x1="116" y1="82" x2="390" y2="420" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#2a8a61" stop-opacity="0.5"/>
-      <stop offset="1" stop-color="#0b1728" stop-opacity="0"/>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#ffe29a"/>
+      <stop offset=".38" stop-color="#d7a43d"/>
+      <stop offset=".72" stop-color="#8a5717"/>
+      <stop offset="1" stop-color="#f4c45f"/>
     </linearGradient>
-    <filter id="cardShadow" x="-40%" y="-35%" width="180%" height="180%">
-      <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#00140c" flood-opacity="0.38"/>
-    </filter>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#000" flood-opacity=".35"/></filter>
   </defs>
+  <rect width="512" height="512" rx="104" fill="url(#bg)"/>
+  <rect x="14" y="14" width="484" height="484" rx="92" fill="none" stroke="url(#gold)" stroke-width="18"/>
+  <rect x="31" y="31" width="450" height="450" rx="78" fill="none" stroke="#5f3c12" stroke-width="4" opacity=".75"/>
+  <g filter="url(#shadow)">
+    <text x="256" y="132" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="76" letter-spacing="2" fill="url(#gold)" stroke="#5a360b" stroke-width="2">SCORER</text>
+    <path d="M92 153h123m82 0h123" stroke="#d9a743" stroke-width="5" stroke-linecap="round"/>
+    <path d="M256 144l11 11-11 11-11-11z" fill="#e7b94f"/>
 
-  <rect width="512" height="512" rx="112" fill="url(#felt)"/>
-  <rect x="34" y="34" width="444" height="444" rx="88" fill="url(#feltGlow)"/>
-  <path d="M94 384c78 43 177 55 274 23" fill="none" stroke="#e5b65a" stroke-width="14" stroke-linecap="round" opacity="0.26"/>
-
-  <g filter="url(#cardShadow)">
-    <g transform="rotate(-16 173 269)">
-      <rect x="92" y="142" width="162" height="238" rx="22" fill="#1f5f9f" stroke="#164a7d" stroke-width="4"/>
-      <path d="M118 178h110M118 218h110M118 258h110M118 298h110M118 338h110" stroke="#8dc0ed" stroke-width="12" stroke-linecap="round" opacity="0.64"/>
-      <path d="M108 162l132 202" stroke="#0f3a68" stroke-width="7" opacity="0.22"/>
+    <g transform="translate(66 190) rotate(-8 80 92)">
+      <rect width="118" height="180" rx="14" fill="#f7f1df" stroke="#d9cfbb" stroke-width="3"/>
+      <text x="18" y="45" font-family="Georgia,serif" font-size="39" font-weight="900" fill="#111">A</text><text x="20" y="79" font-size="34">♠</text>
+    </g>
+    <g transform="translate(112 174) rotate(-1 80 92)">
+      <rect width="118" height="180" rx="14" fill="#f7f1df" stroke="#d9cfbb" stroke-width="3"/>
+      <text x="18" y="45" font-family="Georgia,serif" font-size="39" font-weight="900" fill="#b11818">K</text><text x="20" y="79" font-size="34" fill="#b11818">♦</text>
+    </g>
+    <g transform="translate(158 187) rotate(7 80 92)">
+      <rect width="118" height="180" rx="14" fill="#f7f1df" stroke="#d9cfbb" stroke-width="3"/>
+      <text x="18" y="45" font-family="Georgia,serif" font-size="39" font-weight="900" fill="#111">Q</text><text x="20" y="79" font-size="34">♣</text>
     </g>
 
-    <g transform="rotate(7 247 238)">
-      <rect x="166" y="100" width="164" height="240" rx="23" fill="#fff8e8" stroke="#dfd5c2" stroke-width="4"/>
-      <text x="194" y="149" font-family="Georgia, serif" font-size="40" font-weight="900" fill="#b91c1c">Q</text>
-      <text x="198" y="188" font-family="Georgia, serif" font-size="38" font-weight="900" fill="#b91c1c">♥</text>
-      <text x="248" y="268" text-anchor="middle" font-family="Georgia, serif" font-size="98" font-weight="900" fill="#b91c1c">♥</text>
-      <text x="302" y="318" font-family="Georgia, serif" font-size="40" font-weight="900" fill="#b91c1c" transform="rotate(180 302 318)">Q</text>
+    <g transform="translate(78 327) rotate(-6)">
+      <rect width="300" height="126" rx="11" fill="#efe7d0" stroke="#cfc3a8" stroke-width="3"/>
+      <path d="M12 32h276M12 61h276M12 90h276M70 10v105M130 10v105M190 10v105M250 10v105" stroke="#3c6f56" stroke-width="2" opacity=".75"/>
+      <text x="17" y="28" font-family="Arial,sans-serif" font-size="21" fill="#195b39">63</text><text x="17" y="57" font-size="21" fill="#195b39">53</text><text x="17" y="86" font-size="21" fill="#195b39">45</text><text x="17" y="115" font-size="21" fill="#195b39">30</text>
+      <path d="M92 20l10 9 13-18m38 37l9 9 14-20m25 39l9 9 14-20" fill="none" stroke="#6b6b65" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
 
-    <g transform="rotate(13 318 286)">
-      <rect x="226" y="148" width="180" height="258" rx="25" fill="#fff8e8" stroke="#dfd5c2" stroke-width="4"/>
-      <text x="254" y="202" font-family="Georgia, serif" font-size="46" font-weight="900" fill="#111827">A</text>
-      <text x="260" y="240" font-family="Georgia, serif" font-size="38" font-weight="900" fill="#111827">♠</text>
-      <text x="316" y="326" text-anchor="middle" font-family="Georgia, serif" font-size="112" font-weight="900" fill="#111827">♠</text>
+    <g transform="translate(243 222) rotate(-7)">
+      <rect width="104" height="104" rx="25" fill="#fffdf7" stroke="#d7d3c8" stroke-width="3"/>
+      <g fill="#171717"><circle cx="29" cy="29" r="8"/><circle cx="75" cy="29" r="8"/><circle cx="52" cy="52" r="8"/><circle cx="29" cy="75" r="8"/><circle cx="75" cy="75" r="8"/></g>
+    </g>
+    <g transform="translate(330 207) rotate(7)">
+      <rect width="104" height="104" rx="25" fill="#fffdf7" stroke="#d7d3c8" stroke-width="3"/>
+      <g fill="#171717"><circle cx="29" cy="27" r="8"/><circle cx="75" cy="27" r="8"/><circle cx="29" cy="52" r="8"/><circle cx="75" cy="52" r="8"/><circle cx="29" cy="77" r="8"/><circle cx="75" cy="77" r="8"/></g>
+    </g>
+
+    <g transform="translate(266 397) rotate(-31)">
+      <rect x="0" y="0" width="205" height="22" rx="11" fill="#b77722"/>
+      <rect x="150" y="0" width="34" height="22" fill="#d9a53d"/>
+      <rect x="184" y="0" width="21" height="22" rx="8" fill="#c94d42"/>
+      <path d="M0 0l-28 11L0 22z" fill="#e7c98e"/><path d="M-28 11l12-4v8z" fill="#1d1d1d"/>
     </g>
   </g>
 </svg>
