@@ -7,8 +7,22 @@ function v48ReadDice() {
   try { return JSON.parse(localStorage.getItem(DICE_KEY_V48)) || null; } catch { return null; }
 }
 
+function v48WriteDice(state) {
+  localStorage.setItem(DICE_KEY_V48, JSON.stringify(state));
+}
+
 function v48Escape(value) {
   return String(value ?? "").replace(/[&<>"']/g, (ch) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]));
+}
+
+function v48ResumeFromStorage() {
+  const trigger = document.createElement("button");
+  trigger.type = "button";
+  trigger.hidden = true;
+  trigger.dataset.hub = "resume-five-dice";
+  document.body.appendChild(trigger);
+  trigger.click();
+  trigger.remove();
 }
 
 function v48PatchRollFlow() {
@@ -19,7 +33,10 @@ function v48PatchRollFlow() {
 
   const hasUndo = Boolean(saved.lastRoll);
   screen.querySelectorAll("[data-die-index]").forEach((die) => {
-    if (saved.rolls > 0) die.disabled = false;
+    die.disabled = saved.rolls === 0;
+  });
+  screen.querySelectorAll("[data-score-category]").forEach((button) => {
+    button.disabled = saved.rolls === 0;
   });
 
   const board = screen.querySelector(".dice-board");
@@ -114,6 +131,21 @@ document.addEventListener("click", (event) => {
     event.stopImmediatePropagation();
     v48SubmitScore();
     return;
+  }
+
+  const die = event.target.closest("[data-die-index]");
+  if (die) {
+    const saved = v48ReadDice();
+    if (saved?.phase === "turn" && saved.rolls > 0 && saved.lastRoll) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const index = Number(die.dataset.dieIndex);
+      if (!Number.isInteger(index) || index < 0 || index >= saved.held.length) return;
+      saved.held[index] = !saved.held[index];
+      v48WriteDice(saved);
+      v48ResumeFromStorage();
+      return;
+    }
   }
 
   const category = event.target.closest("[data-score-category]");
