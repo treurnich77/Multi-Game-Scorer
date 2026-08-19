@@ -1,3 +1,5 @@
+import { gameOrder, games } from "./games/index.js?v=22";
+
 const CORE_KEY = "multiGameScorer:v6";
 const DICE_KEY = "multiGameScorer:fiveDice:v1";
 const COLOUR_HEX = {
@@ -12,8 +14,10 @@ const CATEGORIES = [
   ["threeKind", "Three of a Kind"], ["fourKind", "Four of a Kind"], ["fullHouse", "Full House"],
   ["smallStraight", "Small Straight"], ["largeStraight", "Large Straight"], ["fiveDice", "Five Dice"], ["chance", "Chance"]
 ];
+
 let diceState = null;
 let setupCount = 2;
+let diceRolling = false;
 
 function readCore() {
   try { return JSON.parse(localStorage.getItem(CORE_KEY)) || {}; } catch { return {}; }
@@ -62,16 +66,46 @@ function newTurn() {
   diceState.phase = "turn";
   writeDice();
 }
-function rollDice() {
-  if (!diceState || diceState.rolls >= 3) return;
-  diceState.dice = diceState.dice.map((die, i) => diceState.held[i] ? die : Math.floor(Math.random() * 6) + 1);
+function randomDie() { return Math.floor(Math.random() * 6) + 1; }
+function dieFace(value) {
+  const pipMap = {
+    1: [5], 2: [1,9], 3: [1,5,9], 4: [1,3,7,9], 5: [1,3,5,7,9], 6: [1,3,4,6,7,9]
+  };
+  const active = new Set(pipMap[value] || []);
+  return `<span class="die-face" aria-hidden="true">${Array.from({length:9}, (_, i) => `<i class="pip ${active.has(i + 1) ? "on" : ""}"></i>`).join("")}</span>`;
+}
+async function rollDice() {
+  if (!diceState || diceState.rolls >= 3 || diceRolling) return;
+  diceRolling = true;
+  const rollButton = document.querySelector('[data-dice-action="roll"]');
+  if (rollButton) {
+    rollButton.disabled = true;
+    rollButton.textContent = "Rolling…";
+  }
+
+  const rollingIndexes = diceState.held.map((held, index) => held ? -1 : index).filter((index) => index >= 0);
+  const diceButtons = [...document.querySelectorAll("[data-die-index]")];
+  rollingIndexes.forEach((index) => diceButtons[index]?.classList.add("rolling"));
+
+  const started = performance.now();
+  while (performance.now() - started < 650) {
+    rollingIndexes.forEach((index) => {
+      const value = randomDie();
+      const face = diceButtons[index]?.querySelector(".die-face");
+      if (face) face.outerHTML = dieFace(value);
+    });
+    await new Promise((resolve) => setTimeout(resolve, 70));
+  }
+
+  diceState.dice = diceState.dice.map((die, index) => diceState.held[index] ? die : randomDie());
   diceState.rolls += 1;
+  diceRolling = false;
   writeDice();
   renderDiceGame();
 }
 function chooseScore(key) {
   const player = diceState.players[diceState.current];
-  if (!player || player.scores[key] != null || diceState.rolls === 0) return;
+  if (!player || player.scores[key] != null || diceState.rolls === 0 || diceRolling) return;
   player.scores[key] = scoreCategory(key, diceState.dice);
   const everyoneDone = diceState.players.every((p) => availableScores(p).length === 0);
   if (everyoneDone) {
@@ -104,7 +138,7 @@ function renderHubHome() {
     <div class="section-heading-row"><div><span class="eyebrow">Play & learn</span><h2>Game night hub</h2></div></div>
     <div class="hub-grid">
       <button class="hub-card" data-hub="five-dice"><span class="hub-icon">⚄</span><strong>${saved && saved.phase !== "finished" ? "Resume Five Dice" : "Play Five Dice"}</strong><small>Pass-the-phone dice game · 2–6 players · works offline</small></button>
-      <button class="hub-card" data-hub="holdem"><span class="hub-icon">♠</span><strong>Texas Hold’em Rules</strong><small>Blinds, betting rounds, hand rankings and showdown</small></button>
+      <button class="hub-card" data-hub="rules"><span class="hub-icon">?</span><strong>Game Rules</strong><small>Learn every scorer game, plus Texas Hold’em</small></button>
     </div>`;
   home.before(section);
 }
@@ -112,7 +146,7 @@ function renderDiceSetup() {
   const core = readCore();
   const names = (core.players || []).map((p) => p.name);
   const app = document.getElementById("app");
-  app.innerHTML = `<main class="shell hub-screen"><section class="hub-top"><button class="secondary" data-hub="home">← Home</button><div><span class="eyebrow">Offline play</span><h1>Five Dice</h1><p>Pass the phone. Roll up to three times, hold any dice, then choose one scoring category.</p></div></section>
+  app.innerHTML = `<main class="shell hub-screen"><section class="hub-top"><button class="secondary" data-hub="home">← Home</button><div><span class="eyebrow">Offline play</span><h1>Five Dice</h1><p>Pass the phone. Roll up to three times, hold any dice, then choose one scoring category. You may scratch any open category for zero if the roll does not score there.</p></div></section>
   <section class="panel dice-setup"><div class="field"><label>Players</label><select data-dice-setup="count">${[2,3,4,5,6].map(n => `<option value="${n}" ${n===setupCount?"selected":""}>${n}</option>`).join("")}</select></div>
   <datalist id="hub-player-names">${names.map(n => `<option value="${escapeText(n)}"></option>`).join("")}</datalist>
   <div class="dice-player-fields">${Array.from({length:setupCount}, (_,i) => `<div class="field"><label>Player ${i+1}</label><input list="hub-player-names" data-dice-name="${i}" placeholder="Name" /></div>`).join("")}</div>
@@ -121,9 +155,8 @@ function renderDiceSetup() {
 function renderPass() {
   const player = diceState.players[diceState.current];
   const app = document.getElementById("app");
-  app.innerHTML = `<main class="hub-turn-screen" style="--turn-colour:${currentColour()}"><section class="pass-card"><span class="eyebrow">Next turn</span><h1>Pass to ${escapeText(player.name)}</h1><p>The screen will switch to ${escapeText(player.name)}’s colour.</p><button class="primary wide-button" data-dice-action="ready">I’m ready</button><button class="secondary" data-hub="home">Home</button></section></main>`;
+  app.innerHTML = `<main class="hub-turn-screen pass-screen" style="--turn-colour:${currentColour()}"><section class="pass-card"><span class="eyebrow">Next turn</span><h1>Pass to ${escapeText(player.name)}</h1><p>The whole screen is ${escapeText(player.name)}’s colour.</p><button class="primary wide-button" data-dice-action="ready">I’m ready</button><button class="secondary" data-hub="home">Home</button></section></main>`;
 }
-function diceGlyph(n) { return ["⚀","⚁","⚂","⚃","⚄","⚅"][n-1] || n; }
 function renderDiceGame() {
   if (!diceState) diceState = readDice();
   if (!diceState) return renderDiceSetup();
@@ -133,9 +166,12 @@ function renderDiceGame() {
   const app = document.getElementById("app");
   const canScore = diceState.rolls > 0;
   app.innerHTML = `<main class="hub-turn-screen dice-game" style="--turn-colour:${currentColour()}"><section class="dice-top"><button class="secondary" data-hub="home">← Home</button><div><span class="eyebrow">${escapeText(p.name)}’s turn</span><h1>${escapeText(p.name)}</h1><p>Roll ${Math.min(diceState.rolls + 1, 3)} of 3 · Total score ${totalFor(p)}</p></div></section>
-  <section class="dice-board"><div class="dice-row">${diceState.dice.map((d,i) => `<button class="die ${diceState.held[i]?"held":""}" data-die-index="${i}" ${diceState.rolls===0?"disabled":""}><span>${diceGlyph(d)}</span><small>${diceState.held[i]?"Held":"Tap to hold"}</small></button>`).join("")}</div>
+  <section class="dice-board"><div class="dice-row">${diceState.dice.map((d,i) => `<button class="die ${diceState.held[i]?"held":""}" data-die-index="${i}" ${diceState.rolls===0?"disabled":""}>${dieFace(d)}<small>${diceState.held[i]?"Held":"Tap to hold"}</small></button>`).join("")}</div>
   <button class="primary wide-button roll-button" data-dice-action="roll" ${diceState.rolls>=3?"disabled":""}>${diceState.rolls===0?"Roll dice":diceState.rolls>=3?"Choose a score":"Roll again"}</button></section>
-  <section class="panel score-choice"><h2>Choose score</h2><div class="category-grid">${availableScores(p).map(([key,label]) => `<button class="category-card" data-score-category="${key}" ${canScore?"":"disabled"}><span>${escapeText(label)}</span><strong>${canScore?scoreCategory(key,diceState.dice):"—"}</strong></button>`).join("")}</div></section>
+  <section class="panel score-choice"><div class="score-choice-heading"><div><h2>Choose score</h2><p>Any open category can be used. A zero means you can scratch that category.</p></div></div><div class="category-grid">${availableScores(p).map(([key,label]) => {
+    const value = canScore ? scoreCategory(key,diceState.dice) : null;
+    return `<button class="category-card ${value===0?"scratch-option":""}" data-score-category="${key}" ${canScore?"":"disabled"}><span>${escapeText(label)}${value===0?`<small>Scratch</small>`:""}</span><strong>${canScore?value:"—"}</strong></button>`;
+  }).join("")}</div></section>
   <section class="panel compact-scoreboard"><h2>Scores</h2>${diceState.players.map((pl,i)=>`<div class="dice-score-line ${i===diceState.current?"active":""}"><span style="color:${pl.colour}">${escapeText(pl.name)}</span><strong>${totalFor(pl)}</strong></div>`).join("")}</section></main>`;
 }
 function renderDiceFinished() {
@@ -145,9 +181,25 @@ function renderDiceFinished() {
   const app = document.getElementById("app");
   app.innerHTML = `<main class="shell hub-screen"><section class="panel dice-finished"><span class="eyebrow">Game complete</span><h1>${winners.length===1?`${escapeText(winners[0].name)} wins!`:"Tie game"}</h1><div class="final-score-list">${ordered.map(p=>`<div><span style="color:${p.colour}">${escapeText(p.name)}</span><strong>${totalFor(p)}</strong></div>`).join("")}</div><button class="primary wide-button" data-dice-action="new">Play again</button><button class="secondary" data-hub="home">Home</button></section></main>`;
 }
+function rulesLabel(key) {
+  return games[key]?.fullName || games[key]?.label || key;
+}
+function renderRulesLibrary() {
+  const app = document.getElementById("app");
+  app.innerHTML = `<main class="shell hub-screen"><section class="hub-top"><button class="secondary" data-hub="home">← Home</button><div><span class="eyebrow">Learn</span><h1>Game Rules</h1><p>Quick table-side rules for every game in Scorer.</p></div></section>
+  <section class="rules-library-grid">${gameOrder.map((key) => `<button class="rules-library-card" data-rule-game="${key}"><strong>${escapeText(rulesLabel(key))}</strong><small>Open rules</small></button>`).join("")}
+  <button class="rules-library-card" data-rule-game="holdem"><strong>Texas Hold’em</strong><small>Blinds, betting, rankings and showdown</small></button></section></main>`;
+}
+function renderGameRules(key) {
+  if (key === "holdem") return renderHoldemRules();
+  const game = games[key];
+  if (!game?.renderRules) return renderRulesLibrary();
+  const app = document.getElementById("app");
+  app.innerHTML = `<main class="shell hub-screen"><section class="hub-top"><button class="secondary" data-hub="rules">← Rules</button><div><span class="eyebrow">Rules library</span><h1>${escapeText(rulesLabel(key))}</h1><p>Same rules guide available from inside the scorer.</p></div></section>${game.renderRules(game.createState())}</main>`;
+}
 function renderHoldemRules() {
   const app = document.getElementById("app");
-  app.innerHTML = `<main class="shell hub-screen"><section class="hub-top"><button class="secondary" data-hub="home">← Home</button><div><span class="eyebrow">Rules library</span><h1>Texas Hold’em</h1><p>A quick table-side guide to the standard no-limit game.</p></div></section>
+  app.innerHTML = `<main class="shell hub-screen"><section class="hub-top"><button class="secondary" data-hub="rules">← Rules</button><div><span class="eyebrow">Rules library</span><h1>Texas Hold’em</h1><p>A quick table-side guide to the standard no-limit game.</p></div></section>
   <section class="panel rules holdem-rules">
     <h2>Objective</h2><p>Win the pot either by making the best five-card poker hand at showdown or by making every other player fold.</p>
     <h2>Setup</h2><p>Texas Hold’em is normally played with a standard 52-card deck. One player has the dealer button. The player to the left posts the small blind and the next player posts the big blind. Each player receives two private hole cards.</p>
@@ -179,8 +231,14 @@ document.addEventListener("click", (event) => {
   if (hub) {
     event.preventDefault(); event.stopPropagation();
     if (hub.dataset.hub === "home") return goHome();
+    if (hub.dataset.hub === "rules") return renderRulesLibrary();
     if (hub.dataset.hub === "holdem") return renderHoldemRules();
     if (hub.dataset.hub === "five-dice") { diceState = readDice(); return diceState && diceState.phase !== "finished" ? renderDiceGame() : renderDiceSetup(); }
+  }
+  const rule = event.target.closest("[data-rule-game]");
+  if (rule) {
+    event.preventDefault(); event.stopPropagation();
+    return renderGameRules(rule.dataset.ruleGame);
   }
   const action = event.target.closest("[data-dice-action]");
   if (action) {
@@ -191,7 +249,7 @@ document.addEventListener("click", (event) => {
     if (action.dataset.diceAction === "new") { clearDice(); return renderDiceSetup(); }
   }
   const die = event.target.closest("[data-die-index]");
-  if (die && diceState?.rolls > 0) {
+  if (die && diceState?.rolls > 0 && !diceRolling) {
     event.preventDefault(); event.stopPropagation();
     const i = Number(die.dataset.dieIndex); diceState.held[i] = !diceState.held[i]; writeDice(); renderDiceGame(); return;
   }
