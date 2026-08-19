@@ -1,0 +1,352 @@
+/* Experience Pack: favourites, quick setup, rivalries, filters and result polish. */
+
+.favorite-hint {
+  margin: -4px 0 10px;
+  color: var(--muted);
+  font-size: .8rem;
+}
+
+.experience-game-wrap {
+  position: relative;
+  min-width: 0;
+}
+
+.experience-game-wrap .game-tile {
+  width: 100%;
+  height: 100%;
+  padding-right: 42px;
+}
+
+.favorite-toggle {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--panel) 90%, transparent);
+  color: var(--muted);
+  font-size: 1.2rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 3px 10px rgba(0,0,0,.12);
+}
+
+.favorite-toggle.active {
+  color: var(--gold);
+  border-color: color-mix(in srgb, var(--gold) 60%, var(--line));
+}
+
+.game-grid-heading {
+  grid-column: 1 / -1;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 850;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.experience-setup-shortcuts {
+  display: grid;
+  gap: 12px;
+  margin: 4px 0 14px;
+  padding: 12px;
+  border-radius: 11px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+}
+
+.experience-shortcut-row {
+  display: grid;
+  gap: 7px;
+}
+
+.experience-subhead {
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 850;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.player-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.player-chip {
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  font-weight: 780;
+}
+
+.saved-group-grid {
+  display: grid;
+  gap: 7px;
+}
+
+.saved-group-chip {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--ink);
+  text-align: left;
+}
+
+.saved-group-chip strong,
+.saved-group-chip span {
+  display: block;
+}
+
+.saved-group-chip span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+.save-player-group {
+  width: 100%;
+}
+
+.settings-group-list {
+  display: grid;
+  gap: 8px;
+}
+
+.settings-group-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+}
+
+.settings-group-row strong,
+.settings-group-row span {
+  display: block;
+}
+
+.settings-group-row span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: .77rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compact-danger {
+  min-height: 38px;
+  padding: 0 10px;
+}
+
+.experience-empty {
+  padding: 10px 0;
+  color: var(--muted);
+  font-size: .82rem;
+}
+
+.rivalry-details {
+  grid-column: 1 / -1;
+  margin-top: 2px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.rivalry-details summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--ink);
+  font-size: .8rem;
+  font-weight: 820;
+}
+
+.streak-badge {
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--gold) 18%, var(--panel-2));
+  border: 1px solid color-mix(in srgb, var(--gold) 45%, var(--line));
+  color: var(--ink);
+  font-size: .68rem;
+  white-space: nowrap;
+}
+
+.rivalry-body {
+  display: grid;
+  gap: 7px;
+  margin-top: 9px;
+}
+
+.rivalry-line,
+.streak-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 9px;
+  border-radius: 8px;
+  background: var(--panel-2);
+  font-size: .78rem;
+}
+
+.rivalry-line span,
+.streak-line span {
+  color: var(--muted);
+  text-align: right;
+}
+
+.experience-winner {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: stretch;
+  padding: 18px;
+  border-radius: 14px;
+  box-shadow: 0 18px 38px rgba(0,0,0,.2);
+}
+
+.experience-winner > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.experience-winner > div:first-child > strong {
+  font-size: clamp(1.35rem, 7vw, 2rem);
+}
+
+.experience-winner > div:first-child > span:last-child {
+  font-size: 1rem;
+  font-weight: 760;
+  opacity: .9;
+}
+
+.experience-winner > button[data-action="new-match"] {
+  width: 100%;
+  margin-top: 12px;
+  min-height: 48px;
+}
+
+.experience-winner .result-extras {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,.22);
+}
+
+.experience-winner .result-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 9px;
+}
+
+.experience-winner .result-actions button {
+  min-height: 44px;
+  padding: 0 8px;
+}
+
+.match-filter-bar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-2);
+}
+
+.match-filter-bar label {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: .74rem;
+  font-weight: 780;
+}
+
+.match-filter-bar select {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  padding: 0 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--ink);
+  font-weight: 740;
+}
+
+.filter-count {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 760;
+}
+
+.match-row[hidden] {
+  display: none !important;
+}
+
+.filtered-empty[hidden] {
+  display: none !important;
+}
+
+.experience-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(86px + env(safe-area-inset-bottom));
+  z-index: 60;
+  max-width: calc(100% - 30px);
+  transform: translate(-50%, 18px);
+  opacity: 0;
+  pointer-events: none;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--panel);
+  font-size: .82rem;
+  font-weight: 780;
+  text-align: center;
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+
+.experience-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+[data-theme="dark"] .favorite-toggle,
+[data-theme="dark"] .player-chip,
+[data-theme="dark"] .saved-group-chip,
+[data-theme="dark"] .match-filter-bar select {
+  background: var(--panel-2);
+  color: var(--ink);
+}
+
+@media (max-width: 430px) {
+  .experience-winner .result-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .match-filter-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-count {
+    grid-column: 1;
+  }
+}
