@@ -1,7 +1,25 @@
 const CORE_KEY = "multiGameScorer:v6";
 const POLISH_KEY = "multiGameScorer:polish:v1";
 
-const COLOURS = ["emerald", "blue", "violet", "amber", "rose", "teal", "slate", "orange"];
+const COLOUR_OPTIONS = [
+  { key: "emerald", label: "Emerald" },
+  { key: "blue", label: "Blue" },
+  { key: "violet", label: "Violet" },
+  { key: "amber", label: "Amber" },
+  { key: "rose", label: "Rose" },
+  { key: "teal", label: "Teal" },
+  { key: "slate", label: "Slate" },
+  { key: "orange", label: "Orange" },
+  { key: "cyan", label: "Cyan" },
+  { key: "indigo", label: "Indigo" },
+  { key: "lime", label: "Lime" },
+  { key: "pink", label: "Pink" },
+  { key: "brown", label: "Brown" },
+  { key: "red", label: "Red" },
+  { key: "navy", label: "Navy" },
+  { key: "gold", label: "Gold" }
+];
+const COLOURS = COLOUR_OPTIONS.map((colour) => colour.key);
 const PARTNERSHIP_GAMES = new Set(["fiveHundred", "spades", "canasta", "euchre"]);
 const PALETTES = [
   { key: "classic", label: "Classic Felt" },
@@ -119,13 +137,30 @@ async function syncWakeLock() {
 function ensurePlayerColours() {
   const state = readCore();
   if (!state?.players?.length) return state;
+  const used = new Set();
   let changed = false;
-  state.players.forEach((player, index) => {
-    if (!player.color || !COLOURS.includes(player.color)) {
-      player.color = COLOURS[index % COLOURS.length];
+
+  state.players.forEach((player) => {
+    const current = COLOURS.includes(player.color) && !used.has(player.color) ? player.color : null;
+    if (current) {
+      used.add(current);
+      return;
+    }
+
+    const available = COLOURS.find((colour) => !used.has(colour));
+    if (available) {
+      if (player.color !== available) changed = true;
+      player.color = available;
+      used.add(available);
+      return;
+    }
+
+    if (player.color) {
+      delete player.color;
       changed = true;
     }
   });
+
   if (changed) writeCore(state);
   return state;
 }
@@ -133,6 +168,20 @@ function ensurePlayerColours() {
 function colourForPlayer(state, id, fallbackIndex = 0) {
   const player = state?.players?.find((item) => item.id === id);
   return player?.color && COLOURS.includes(player.color) ? player.color : COLOURS[fallbackIndex % COLOURS.length];
+}
+
+function availableColourOptions(state, playerId) {
+  const usedByOthers = new Set(
+    (state?.players || [])
+      .filter((player) => player.id !== playerId && COLOURS.includes(player.color))
+      .map((player) => player.color)
+  );
+  return COLOUR_OPTIONS.filter((colour) => !usedByOthers.has(colour.key));
+}
+
+function rebuildPlayerColourControls() {
+  document.querySelectorAll(".player-colour-control").forEach((control) => control.remove());
+  addPlayerColourControls();
 }
 
 function addPlayerColourControls() {
@@ -146,28 +195,49 @@ function addPlayerColourControls() {
     if (!player) return;
 
     const avatar = card.querySelector(".avatar");
-    if (avatar) avatar.dataset.playerColour = player.color;
+    if (avatar && player.color) avatar.dataset.playerColour = player.color;
 
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "player-colour-control";
-    button.dataset.playerId = player.id;
-    button.title = "Change player colour";
-    button.innerHTML = `<span class="colour-dot" data-player-colour="${player.color}"></span><span>Colour</span>`;
-    button.addEventListener("click", () => {
-      const latest = readCore();
+    const options = availableColourOptions(state, player.id);
+    const control = document.createElement("label");
+    control.className = "player-colour-control";
+    control.dataset.playerId = player.id;
+    control.title = "Player colour used in every game";
+
+    const dot = document.createElement("span");
+    dot.className = "colour-dot";
+    if (player.color) dot.dataset.playerColour = player.color;
+
+    const select = document.createElement("select");
+    select.className = "player-colour-select";
+    select.setAttribute("aria-label", `Colour for ${player.name}`);
+    select.innerHTML = options.length
+      ? options.map((colour) => `<option value="${colour.key}" ${player.color === colour.key ? "selected" : ""}>${colour.label}</option>`).join("")
+      : `<option value="">No colour available</option>`;
+    select.disabled = !options.length;
+
+    select.addEventListener("change", () => {
+      const latest = ensurePlayerColours();
       const target = latest?.players?.find((item) => item.id === player.id);
       if (!target) return;
-      const current = COLOURS.indexOf(target.color);
-      target.color = COLOURS[(current + 1 + COLOURS.length) % COLOURS.length];
+      const chosen = select.value;
+      const alreadyUsed = latest.players.some((item) => item.id !== target.id && item.color === chosen);
+      if (!chosen || alreadyUsed) {
+        showToast(alreadyUsed ? "That colour is already assigned." : "Choose an available colour.");
+        rebuildPlayerColourControls();
+        return;
+      }
+
+      target.color = chosen;
       writeCore(latest);
-      const latestColour = target.color;
-      if (avatar) avatar.dataset.playerColour = latestColour;
-      const dot = button.querySelector(".colour-dot");
-      if (dot) dot.dataset.playerColour = latestColour;
+      if (avatar) avatar.dataset.playerColour = chosen;
+      dot.dataset.playerColour = chosen;
       addTeamColourStrips(true);
+      rebuildPlayerColourControls();
+      showToast(`${target.name} is now ${COLOUR_OPTIONS.find((colour) => colour.key === chosen)?.label || chosen}.`);
     });
-    card.appendChild(button);
+
+    control.append(dot, select);
+    card.appendChild(control);
   });
 }
 
