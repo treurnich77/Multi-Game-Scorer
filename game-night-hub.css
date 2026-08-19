@@ -1,35 +1,90 @@
-.game-night-hub { margin-top: 18px; }
+.game-night-hub { margin-top:18px; }
 .hub-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
 .hub-card { display:grid; grid-template-columns:auto 1fr; gap:4px 10px; align-items:center; width:100%; padding:16px; border:1px solid var(--line); border-radius:16px; background:var(--panel); color:var(--ink); text-align:left; box-shadow:0 8px 20px rgba(0,0,0,.06); }
 .hub-card strong { font-size:1rem; }
 .hub-card small { grid-column:2; color:var(--muted); line-height:1.35; }
-.hub-icon { grid-row:1 / span 2; display:grid; place-items:center; width:46px; height:46px; border-radius:14px; background:var(--panel-2); font-size:1.55rem; }
+.hub-icon { grid-row:1 / span 2; display:grid; place-items:center; width:46px; height:46px; border-radius:14px; background:var(--panel-2); font-size:1.35rem; }
+.resume-hub-card,.resume-play-card { border-style:dashed; }
 .hub-screen { padding-bottom:40px; }
 .hub-top,.dice-top { display:grid; grid-template-columns:auto 1fr; gap:14px; align-items:start; margin-bottom:16px; }
 .hub-top h1,.dice-top h1,.pass-card h1,.dice-finished h1 { margin:2px 0 6px; }
 .hub-top p,.dice-top p,.pass-card p { margin:0; color:var(--muted); }
 .dice-setup { max-width:680px; margin:0 auto; }
 .dice-player-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:12px 0 16px; }
-.hub-turn-screen { min-height:100vh; padding:calc(18px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom)); background:var(--turn-colour) !important; color:#111; transition:background .18s ease; }
-.hub-turn-screen::before { content:""; position:fixed; inset:0; pointer-events:none; background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(0,0,0,.08)); z-index:0; }
+.play-library-grid,.rules-library-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+
+.hub-turn-screen {
+  min-height:100vh;
+  padding:calc(18px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom));
+  background:var(--turn-colour) !important;
+  color:#111;
+  transition:background .18s ease;
+}
+.hub-turn-screen::before { content:""; position:fixed; inset:0; pointer-events:none; background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(0,0,0,.07)); z-index:0; }
 .hub-turn-screen > * { position:relative; z-index:1; }
 .hub-turn-screen .dice-top,.hub-turn-screen .dice-top p,.hub-turn-screen .dice-top .eyebrow { color:#111; }
-.pass-card { max-width:520px; margin:15vh auto 0; padding:28px; border-radius:22px; border:1px solid rgba(0,0,0,.16); background:rgba(255,255,255,.92); color:#111; box-shadow:0 18px 48px rgba(0,0,0,.22); text-align:center; }
+.pass-card { max-width:520px; margin:15vh auto 0; padding:28px; border-radius:22px; border:1px solid rgba(0,0,0,.16); background:rgba(255,255,255,.94); color:#111; box-shadow:0 18px 48px rgba(0,0,0,.22); text-align:center; }
 .pass-card p { color:#3c4650; }
 .pass-card .primary { margin:22px 0 10px; }
+
 .dice-game { display:block; }
-.dice-board,.score-choice,.compact-scoreboard { max-width:720px; margin:12px auto; background:rgba(255,255,255,.92) !important; color:#111 !important; border:1px solid rgba(0,0,0,.15); box-shadow:0 10px 26px rgba(0,0,0,.16); backdrop-filter:blur(7px); }
+.dice-board,.score-choice,.compact-scoreboard { max-width:720px; margin:12px auto; background:rgba(255,255,255,.94) !important; color:#111 !important; border:1px solid rgba(0,0,0,.15); box-shadow:0 10px 26px rgba(0,0,0,.16); backdrop-filter:blur(7px); }
 .dice-board { margin-top:0; padding:16px; border-radius:20px; }
 .dice-row { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:14px; }
-.die { min-width:0; min-height:104px; padding:9px 4px; border:3px solid transparent; border-radius:18px; background:rgba(255,255,255,.98); color:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; box-shadow:0 8px 18px rgba(0,0,0,.18); }
+
+.die {
+  min-width:0;
+  min-height:116px;
+  padding:8px 4px;
+  border:3px solid transparent;
+  border-radius:18px;
+  background:rgba(255,255,255,.98);
+  color:#111;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  box-shadow:0 8px 18px rgba(0,0,0,.18);
+}
 .die small { color:#59636d; font-size:.67rem; }
 .die.held { border-color:#111; transform:translateY(-5px); box-shadow:0 12px 25px rgba(0,0,0,.24); }
 .die.rolling { animation:dice-tumble .28s linear infinite; }
-@keyframes dice-tumble { 0% { transform:rotate(0deg) scale(1); } 35% { transform:rotate(8deg) scale(.92); } 70% { transform:rotate(-9deg) scale(1.04); } 100% { transform:rotate(0deg) scale(1); } }
-.die-face { width:58px; height:58px; padding:8px; border-radius:13px; background:linear-gradient(145deg,#fff,#e9ecef); border:1px solid rgba(0,0,0,.16); box-shadow:inset -4px -4px 8px rgba(0,0,0,.08),inset 3px 3px 6px rgba(255,255,255,.9),0 3px 8px rgba(0,0,0,.12); display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr); gap:3px; }
-.die-face .pip { width:9px; height:9px; border-radius:50%; background:transparent; place-self:center; }
-.die-face .pip.on { background:#20242a; box-shadow:inset 1px 1px 2px rgba(255,255,255,.15); }
+@keyframes dice-tumble {
+  0% { transform:rotate(0deg) scale(1); }
+  35% { transform:rotate(8deg) scale(.92); }
+  70% { transform:rotate(-9deg) scale(1.04); }
+  100% { transform:rotate(0deg) scale(1); }
+}
+
+.die-face { position:relative; display:grid; place-items:center; width:66px; height:66px; flex:0 0 66px; }
+.die-svg { display:block; width:66px; height:66px; overflow:visible; filter:drop-shadow(0 3px 4px rgba(0,0,0,.18)); }
+.die-svg rect { fill:#fff; stroke:#c8cdd2; stroke-width:2.5; }
+.die-svg circle { fill:#1d2228; }
+.die-value {
+  position:absolute;
+  right:-5px;
+  bottom:-5px;
+  display:grid;
+  place-items:center;
+  min-width:22px;
+  height:22px;
+  padding:0 4px;
+  border-radius:999px;
+  background:#111;
+  color:#fff;
+  font-size:.72rem;
+  line-height:1;
+  border:2px solid #fff;
+  box-shadow:0 2px 5px rgba(0,0,0,.2);
+}
+
 .roll-button { min-height:48px; font-size:1rem; }
+.roll-safety { display:grid; gap:8px; padding:12px; border:1px solid #d2d7dc; border-radius:12px; background:#f7f8fa; }
+.roll-safety > span { color:#59636d; font-size:.82rem; }
+.roll-safety > div { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.roll-safety button { min-height:42px; }
+
 .category-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
 .score-choice-heading p { margin:-6px 0 12px; color:#59636d; font-size:.82rem; }
 .category-card { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 12px; border:1px solid #d5d9de; border-radius:11px; background:#f7f8fa; color:#111; text-align:left; }
@@ -38,12 +93,13 @@
 .category-card strong { font-size:1.05rem; }
 .category-card.scratch-option { border-style:dashed; }
 .category-card:disabled { opacity:.45; }
+
 .dice-score-line,.final-score-list div { display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid #d5d9de; }
 .dice-score-line span,.final-score-list span { font-weight:900; }
 .dice-score-line.active { font-size:1.05rem; }
 .dice-finished { max-width:520px; margin:10vh auto 0; text-align:center; }
 .final-score-list { margin:18px 0; text-align:left; }
-.rules-library-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+
 .rules-library-card { display:grid; gap:4px; width:100%; min-height:82px; padding:14px; border:1px solid var(--line); border-radius:14px; background:var(--panel); color:var(--ink); text-align:left; }
 .rules-library-card strong { font-size:.96rem; }
 .rules-library-card small { color:var(--muted); }
@@ -51,11 +107,14 @@
 .poker-ranking div { display:grid; grid-template-columns:32px 1fr; gap:8px; align-items:center; padding:8px 10px; border-radius:9px; background:var(--panel-2); }
 .poker-ranking strong { display:grid; place-items:center; width:24px; height:24px; border-radius:50%; background:var(--panel); }
 .holdem-rules h2 { margin-top:22px; }
+
 @media (max-width:560px) {
-  .hub-grid,.dice-player-fields,.category-grid,.rules-library-grid { grid-template-columns:1fr; }
-  .dice-row { gap:6px; }
-  .die { min-height:88px; border-radius:14px; }
-  .die-face { width:50px; height:50px; padding:7px; }
-  .die-face .pip { width:8px; height:8px; }
+  .hub-grid,.dice-player-fields,.category-grid,.rules-library-grid,.play-library-grid { grid-template-columns:1fr; }
+  .dice-row { gap:5px; }
+  .die { min-height:96px; border-radius:14px; padding-left:2px; padding-right:2px; }
+  .die-face,.die-svg { width:52px; height:52px; }
+  .die-face { flex-basis:52px; }
+  .die-value { min-width:20px; height:20px; font-size:.68rem; right:-4px; bottom:-4px; }
   .hub-turn-screen { padding-left:10px; padding-right:10px; }
+  .roll-safety > div { grid-template-columns:1fr; }
 }
