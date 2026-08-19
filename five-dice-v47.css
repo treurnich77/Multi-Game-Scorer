@@ -1,0 +1,49 @@
+.upper-score-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.upper-score-summary > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #d5d9de;
+  border-radius: 10px;
+  background: #eef1f4;
+  color: #111;
+}
+
+.upper-score-summary span {
+  font-size: .76rem;
+  color: #59636d;
+}
+
+.upper-score-summary strong {
+  font-size: .92rem;
+}
+
+.category-card.used-category:disabled {
+  opacity: .68;
+  cursor: default;
+  border-style: solid;
+  background: #e6e9ed;
+  color: #606a74;
+}
+
+.category-card.used-category small {
+  color: #7a838c;
+}
+
+.v47-dice-continue .resume-card {
+  width: 100%;
+}
+
+@media (max-width: 560px) {
+  .upper-score-summary {
+    grid-template-columns: 1fr;
+  }
+}
