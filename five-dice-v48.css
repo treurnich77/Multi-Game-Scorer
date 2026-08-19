@@ -90,3 +90,8 @@ html[data-theme="dark"] .favourite-game-wrap.is-favourite .favourite-toggle {
   color: #111 !important;
   border-color: var(--gold) !important;
 }
+
+/* The pips already show the rolled value clearly; hide the redundant number badge. */
+.die-value {
+  display: none !important;
+}
