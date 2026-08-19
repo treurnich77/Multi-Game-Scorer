@@ -1,12 +1,13 @@
-const CACHE_NAME = "multi-game-scorer-v27";
+const CACHE_NAME = "multi-game-scorer-v28";
 const ASSETS = [
   "./",
   "./index.html",
   "./styles.css?v=21",
   "./mvp.css?v=1",
-  "./mobile-fix.css?v=2",
+  "./mobile-fix.css?v=3",
   "./app.js?v=24",
   "./post-mvp.js?v=1",
+  "./setup-fix.js?v=1",
   "./games/index.js?v=21",
   "./games/shared.js?v=12",
   "./games/fiveHundred.js?v=12",
@@ -29,15 +30,40 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
-    )
-  );
-  self.clients.claim();
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)));
+    await self.clients.claim();
+
+    // Reload any open standalone app window once so a newly activated worker
+    // immediately replaces stale cached HTML instead of waiting for another launch.
+    const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    await Promise.all(windows.map(async (client) => {
+      try {
+        await client.navigate(client.url);
+      } catch {}
+    }));
+  })());
 });
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+
+  // Navigation must prefer the network so the installed PWA does not get stuck
+  // on an old index.html. Offline use still falls back to the cached app shell.
+  if (event.request.mode === "navigate") {
+    event.respondWith((async () => {
+      try {
+        const response = await fetch(event.request, { cache: "no-store" });
+        const cache = await caches.open(CACHE_NAME);
+        cache.put("./index.html", response.clone()).catch(() => {});
+        return response;
+      } catch {
+        return (await caches.match("./index.html")) || (await caches.match("./"));
+      }
+    })());
+    return;
+  }
+
   event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request)));
 });
