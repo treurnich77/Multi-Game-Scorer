@@ -1,4 +1,4 @@
-const CACHE_NAME = "multi-game-scorer-v55";
+const CACHE_NAME = "multi-game-scorer-v56";
 const ASSETS = [
   "./",
   "./index.html",
@@ -39,8 +39,8 @@ const ASSETS = [
   "./games/phase10.js?v=19",
   "./games/general.js?v=19",
   "./games/cribbage.js?v=21",
-  "./manifest.json?v=15",
-  "./icon.svg?v=2"
+  "./manifest.json?v=16",
+  "./icon.svg?v=3"
 ];
 
 self.addEventListener("install", (event) => {
