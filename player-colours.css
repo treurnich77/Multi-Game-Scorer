@@ -1,25 +1,15 @@
 .player-colour-control {
   position: relative;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 7px;
-  align-items: center;
-  min-width: 128px;
-  min-height: 42px;
-  padding: 5px 7px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--panel-2);
+  display: block;
+  min-width: 104px;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--ink);
 }
 
 .player-colour-control .colour-dot {
-  width: 20px;
-  height: 20px;
-  margin: 0;
-  border-radius: 50%;
-  border: 2px solid rgba(255,255,255,.7);
-  box-shadow: 0 0 0 1px rgba(0,0,0,.18);
+  display: none !important;
 }
 
 .native-colour-select {
@@ -40,39 +30,28 @@
 .custom-colour-trigger,
 .custom-colour-option {
   display: grid;
-  grid-template-columns: 16px minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
   align-items: center;
   width: 100%;
   margin: 0;
-  border: 0;
-  background: transparent;
   font: inherit;
   text-align: left;
 }
 
 .custom-colour-trigger {
-  min-height: 34px;
-  padding: 5px 7px;
-  border-radius: 7px;
+  min-height: 36px;
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
   background: var(--panel);
   cursor: pointer;
 }
 
 .custom-colour-trigger .colour-name,
 .custom-colour-option .colour-name {
-  color: var(--colour-choice);
-  font-size: .78rem;
+  font-size: .82rem;
   font-weight: 900;
-}
-
-.custom-colour-swatch {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--colour-choice);
-  border: 1px solid rgba(255,255,255,.72);
-  box-shadow: 0 0 0 1px rgba(0,0,0,.16);
 }
 
 .custom-colour-chevron {
@@ -85,10 +64,10 @@
   top: calc(100% + 6px);
   right: 0;
   z-index: 80;
-  min-width: 180px;
-  max-height: 260px;
+  min-width: 150px;
+  max-height: 270px;
   overflow-y: auto;
-  padding: 6px;
+  padding: 5px;
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--panel);
@@ -96,10 +75,12 @@
 }
 
 .custom-colour-option {
-  grid-template-columns: 16px minmax(0, 1fr) 18px;
-  min-height: 38px;
-  padding: 7px 8px;
+  grid-template-columns: minmax(0, 1fr) 18px;
+  min-height: 36px;
+  padding: 7px 9px;
+  border: 0;
   border-radius: 7px;
+  background: transparent;
   cursor: pointer;
 }
 
