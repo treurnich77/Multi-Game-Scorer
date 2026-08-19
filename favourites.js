@@ -13,21 +13,22 @@ function writeFavourites(favourites) {
   localStorage.setItem(FAVOURITES_KEY, JSON.stringify(favourites));
 }
 
+function applyStarState(wrapper, favourites) {
+  const gameKey = wrapper.dataset.game;
+  const active = favourites.includes(gameKey);
+  const star = wrapper.querySelector(".favourite-toggle");
+  wrapper.classList.toggle("is-favourite", active);
+  if (!star) return;
+  star.textContent = active ? "★" : "☆";
+  star.setAttribute("aria-pressed", String(active));
+  star.title = active ? "Remove from favourites" : "Add to favourites";
+}
+
 function updateFavouriteGrid(grid) {
   const favourites = readFavourites();
   const wrappers = [...grid.children].filter((node) => node.classList?.contains("favourite-game-wrap"));
 
-  wrappers.forEach((wrapper) => {
-    const gameKey = wrapper.dataset.game;
-    const active = favourites.includes(gameKey);
-    const star = wrapper.querySelector(".favourite-toggle");
-    wrapper.classList.toggle("is-favourite", active);
-    if (star) {
-      star.textContent = active ? "★" : "☆";
-      star.setAttribute("aria-pressed", String(active));
-      star.title = active ? "Remove from favourites" : "Add to favourites";
-    }
-  });
+  wrappers.forEach((wrapper) => applyStarState(wrapper, favourites));
 
   wrappers
     .sort((a, b) => {
@@ -44,51 +45,73 @@ function updateFavouriteGrid(grid) {
     .forEach((wrapper) => grid.appendChild(wrapper));
 }
 
+function createStar(wrapper, gameKey, label) {
+  const star = document.createElement("button");
+  star.type = "button";
+  star.className = "favourite-toggle";
+  star.setAttribute("aria-label", `Favourite ${label}`);
+  star.textContent = "☆";
+
+  star.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const favourites = readFavourites();
+    const next = favourites.includes(gameKey)
+      ? favourites.filter((key) => key !== gameKey)
+      : [...favourites, gameKey];
+    writeFavourites(next);
+    updateFavouriteGrid(wrapper.closest(".game-grid"));
+  });
+
+  wrapper.appendChild(star);
+  return star;
+}
+
 function enhanceFavouriteGames() {
   const grid = document.querySelector(".game-grid");
-  if (!grid || grid.dataset.favouritesEnhanced === "true") return;
+  if (!grid) return;
 
-  const tiles = [...grid.children].filter((node) => node.matches?.(".game-tile[data-game]"));
-  if (!tiles.length) return;
-
-  grid.dataset.favouritesEnhanced = "true";
-
-  tiles.forEach((tile, index) => {
+  const directTiles = [...grid.children].filter((node) => node.matches?.(".game-tile[data-game]"));
+  directTiles.forEach((tile, index) => {
     const gameKey = tile.dataset.game;
-    const label = tile.querySelector("strong")?.textContent?.trim() || "game";
     const wrapper = document.createElement("div");
     wrapper.className = "favourite-game-wrap";
     wrapper.dataset.game = gameKey;
     wrapper.dataset.originalOrder = String(index);
-
-    const star = document.createElement("button");
-    star.type = "button";
-    star.className = "favourite-toggle";
-    star.setAttribute("aria-label", `Favourite ${label}`);
-
-    star.addEventListener("click", (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      const favourites = readFavourites();
-      const next = favourites.includes(gameKey)
-        ? favourites.filter((key) => key !== gameKey)
-        : [...favourites, gameKey];
-      writeFavourites(next);
-      updateFavouriteGrid(grid);
-    });
-
     grid.insertBefore(wrapper, tile);
     wrapper.appendChild(tile);
-    wrapper.appendChild(star);
   });
 
-  updateFavouriteGrid(grid);
+  const wrappers = [...grid.children].filter((node) => node.classList?.contains("favourite-game-wrap"));
+  wrappers.forEach((wrapper, index) => {
+    if (!wrapper.dataset.originalOrder) wrapper.dataset.originalOrder = String(index);
+    const tile = wrapper.querySelector(".game-tile[data-game]");
+    if (!tile) return;
+    const gameKey = tile.dataset.game;
+    wrapper.dataset.game = gameKey;
+    if (!wrapper.querySelector(".favourite-toggle")) {
+      const label = tile.querySelector("strong")?.textContent?.trim() || "game";
+      createStar(wrapper, gameKey, label);
+    }
+  });
+
+  if (wrappers.length) updateFavouriteGrid(grid);
+}
+
+let favouriteRefreshQueued = false;
+function queueFavouriteRefresh() {
+  if (favouriteRefreshQueued) return;
+  favouriteRefreshQueued = true;
+  queueMicrotask(() => {
+    favouriteRefreshQueued = false;
+    enhanceFavouriteGames();
+  });
 }
 
 const appRoot = document.getElementById("app");
 if (appRoot) {
-  new MutationObserver(enhanceFavouriteGames).observe(appRoot, { childList: true });
+  new MutationObserver(queueFavouriteRefresh).observe(appRoot, { childList: true });
 }
 
-document.addEventListener("DOMContentLoaded", enhanceFavouriteGames);
-queueMicrotask(enhanceFavouriteGames);
+document.addEventListener("DOMContentLoaded", queueFavouriteRefresh);
+queueFavouriteRefresh();
