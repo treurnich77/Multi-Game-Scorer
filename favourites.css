@@ -1,6 +1,7 @@
 .favourite-game-wrap {
   position: relative;
   min-width: 0;
+  overflow: visible;
 }
 
 .favourite-game-wrap .game-tile {
@@ -9,26 +10,27 @@
 }
 
 .favourite-game-wrap .game-tile strong {
-  padding-right: 14px;
+  padding-right: 10px;
 }
 
 .favourite-toggle {
   position: absolute;
-  top: 3px;
-  right: 3px;
-  z-index: 2;
+  top: -5px;
+  right: -4px;
+  z-index: 6;
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.72);
+  border: 2px solid var(--panel);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.94);
-  color: #7a5b00;
-  font-size: 16px;
+  background: var(--gold);
+  color: #17211c;
+  font-size: 18px;
+  font-weight: 900;
   line-height: 1;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 3px 9px rgba(0, 0, 0, 0.2);
 }
 
 .favourite-toggle:active {
@@ -36,12 +38,12 @@
 }
 
 .favourite-game-wrap.is-favourite .game-tile {
-  outline: 2px solid rgba(194, 148, 0, 0.45);
+  outline: 2px solid color-mix(in srgb, var(--gold) 55%, transparent);
   outline-offset: -2px;
 }
 
 html[data-theme="dark"] .favourite-toggle {
-  background: rgba(28, 33, 39, 0.94);
-  border-color: rgba(255, 255, 255, 0.16);
-  color: #f0c34c;
+  border-color: var(--panel);
+  background: var(--gold);
+  color: #111;
 }
