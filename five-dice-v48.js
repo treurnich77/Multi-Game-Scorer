@@ -34,10 +34,11 @@ function v48PatchRollFlow() {
   }
 
   const canRollAgain = saved.rolls < 3;
-  controls.innerHTML = `
+  const desiredControls = `
     ${hasUndo ? `<button class="v48-undo-roll" data-dice-action="undo-roll" type="button">Undo accidental roll</button>` : ""}
     ${canRollAgain ? `<button class="primary wide-button roll-button" data-dice-action="roll" type="button">${saved.rolls === 0 ? "Roll dice" : "Roll again"}</button>` : `<div class="v48-final-roll">Final roll — choose a score</div>`}
   `;
+  if (controls.innerHTML !== desiredControls) controls.innerHTML = desiredControls;
 
   const choiceText = screen.querySelector(".score-choice-heading p");
   if (choiceText && hasUndo) choiceText.textContent = "Choose a category when you're ready. Use Undo accidental roll only if that roll was a mistake.";
@@ -125,6 +126,8 @@ document.addEventListener("click", (event) => {
 }, true);
 
 const v48App = document.getElementById("app");
-if (v48App) new MutationObserver(v48QueuePatch).observe(v48App, { childList: true, subtree: true });
+// Only watch top-level screen swaps. Watching the entire subtree caused v48's own
+// control rewrites to retrigger this observer indefinitely on resume.
+if (v48App) new MutationObserver(v48QueuePatch).observe(v48App, { childList: true });
 document.addEventListener("DOMContentLoaded", v48QueuePatch);
 v48QueuePatch();
