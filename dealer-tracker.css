@@ -1,0 +1,229 @@
+.dealer-setup-card {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel-2);
+}
+
+.dealer-setup-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.dealer-setup-heading strong,
+.dealer-setup-heading small {
+  display: block;
+}
+
+.dealer-setup-heading small {
+  max-width: 190px;
+  color: var(--muted);
+  font-size: .72rem;
+  text-align: right;
+}
+
+.dealer-seat-list {
+  display: grid;
+  gap: 7px;
+}
+
+.dealer-seat-row {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  min-height: 46px;
+  padding: 6px 7px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+}
+
+.dealer-seat-number {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--panel);
+  font-size: .76rem;
+  font-weight: 900;
+}
+
+.dealer-seat-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dealer-seat-move {
+  display: flex;
+  gap: 4px;
+}
+
+.dealer-seat-button {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0;
+}
+
+.dealer-first-block {
+  margin-top: 11px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.dealer-first-label {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: .76rem;
+  font-weight: 850;
+}
+
+.dealer-first-choices,
+.dealer-correction-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dealer-first-choice,
+.dealer-correction-choice {
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--ink);
+  font-size: .76rem;
+  font-weight: 800;
+}
+
+.dealer-first-choice.active,
+.dealer-correction-choice.active {
+  border-color: var(--good);
+  background: color-mix(in srgb, var(--good) 13%, var(--panel));
+  box-shadow: inset 0 0 0 1px var(--good);
+}
+
+.managed-dealer-panel {
+  margin: 0 0 10px;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 11px;
+  background: rgba(255,255,255,.12);
+  color: #fff;
+}
+
+.managed-dealer-main {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+}
+
+.dealer-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.16);
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.managed-dealer-copy {
+  min-width: 0;
+}
+
+.managed-dealer-copy span,
+.managed-dealer-copy strong,
+.managed-dealer-copy small {
+  display: block;
+}
+
+.managed-dealer-copy span {
+  color: rgba(255,255,255,.68);
+  font-size: .66rem;
+  font-weight: 850;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.managed-dealer-copy strong {
+  margin-top: 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1rem;
+}
+
+.managed-dealer-copy small {
+  margin-top: 2px;
+  color: rgba(255,255,255,.76);
+  font-size: .7rem;
+}
+
+.dealer-correct-button {
+  min-height: 38px;
+  padding: 7px 9px;
+  font-size: .72rem;
+}
+
+.dealer-correction {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,.22);
+}
+
+.dealer-correction > span,
+.dealer-correction > small {
+  display: block;
+}
+
+.dealer-correction > span {
+  margin-bottom: 7px;
+  font-size: .76rem;
+  font-weight: 850;
+}
+
+.dealer-correction > small {
+  margin-top: 8px;
+  color: rgba(255,255,255,.72);
+  font-size: .68rem;
+  line-height: 1.35;
+}
+
+.dealer-correction-choice {
+  background: rgba(255,255,255,.94);
+  color: #17211c;
+}
+
+@media (max-width: 430px) {
+  .dealer-setup-heading {
+    align-items: start;
+  }
+
+  .dealer-setup-heading small {
+    max-width: 140px;
+  }
+
+  .managed-dealer-main {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .dealer-correct-button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
