@@ -1,0 +1,92 @@
+.v48-roll-controls {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  padding-top: 2px;
+}
+
+.v48-undo-roll {
+  justify-self: end;
+  padding: 5px 8px;
+  border: 1px solid rgba(0,0,0,.22);
+  border-radius: 999px;
+  background: rgba(255,255,255,.72);
+  color: #555;
+  font-size: .68rem;
+  font-weight: 800;
+  box-shadow: none;
+}
+
+.v48-final-roll {
+  padding: 12px 14px;
+  border-radius: 11px;
+  background: rgba(0,0,0,.08);
+  text-align: center;
+  font-weight: 850;
+}
+
+.category-card.v48-selected-score {
+  border: 3px solid #111 !important;
+  background: #fff8d9 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(0,0,0,.16);
+}
+
+.v48-score-confirm {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 14px;
+  border: 2px solid #111;
+  border-radius: 14px;
+  background: #fff8d9;
+  color: #111;
+}
+
+.v48-score-confirm > div:first-child {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.v48-score-confirm > div:first-child span {
+  font-size: .75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.v48-score-confirm > div:first-child strong {
+  font-size: 1.05rem;
+}
+
+.v48-score-confirm-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 8px;
+}
+
+.favourite-toggle {
+  background: var(--panel) !important;
+  color: var(--gold) !important;
+  border-color: var(--gold) !important;
+}
+
+.favourite-game-wrap.is-favourite .favourite-toggle {
+  background: var(--gold) !important;
+  color: #17211c !important;
+  border-color: var(--gold) !important;
+}
+
+html[data-theme="dark"] .favourite-toggle {
+  background: var(--panel) !important;
+  color: var(--gold) !important;
+  border-color: var(--gold) !important;
+}
+
+html[data-theme="dark"] .favourite-game-wrap.is-favourite .favourite-toggle {
+  background: var(--gold) !important;
+  color: #111 !important;
+  border-color: var(--gold) !important;
+}
