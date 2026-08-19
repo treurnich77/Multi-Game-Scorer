@@ -63,20 +63,31 @@ function newTurn() {
   diceState.dice = [1,1,1,1,1];
   diceState.held = [false,false,false,false,false];
   diceState.rolls = 0;
+  diceState.lastRoll = null;
   diceState.phase = "turn";
   writeDice();
 }
 function randomDie() { return Math.floor(Math.random() * 6) + 1; }
 function dieFace(value) {
   const pipMap = {
-    1: [5], 2: [1,9], 3: [1,5,9], 4: [1,3,7,9], 5: [1,3,5,7,9], 6: [1,3,4,6,7,9]
+    1: [[50,50]],
+    2: [[28,28],[72,72]],
+    3: [[28,28],[50,50],[72,72]],
+    4: [[28,28],[72,28],[28,72],[72,72]],
+    5: [[28,28],[72,28],[50,50],[28,72],[72,72]],
+    6: [[28,25],[72,25],[28,50],[72,50],[28,75],[72,75]]
   };
-  const active = new Set(pipMap[value] || []);
-  return `<span class="die-face" aria-hidden="true">${Array.from({length:9}, (_, i) => `<i class="pip ${active.has(i + 1) ? "on" : ""}"></i>`).join("")}</span>`;
+  const pips = (pipMap[value] || []).map(([cx, cy]) => `<circle cx="${cx}" cy="${cy}" r="8"></circle>`).join("");
+  return `<span class="die-face" aria-label="${value}"><svg class="die-svg" viewBox="0 0 100 100" role="img" aria-hidden="true"><rect x="4" y="4" width="92" height="92" rx="18"></rect>${pips}</svg><b class="die-value">${value}</b></span>`;
 }
 async function rollDice() {
   if (!diceState || diceState.rolls >= 3 || diceRolling) return;
   diceRolling = true;
+  const before = {
+    dice: [...diceState.dice],
+    held: [...diceState.held],
+    rolls: diceState.rolls
+  };
   const rollButton = document.querySelector('[data-dice-action="roll"]');
   if (rollButton) {
     rollButton.disabled = true;
@@ -88,7 +99,7 @@ async function rollDice() {
   rollingIndexes.forEach((index) => diceButtons[index]?.classList.add("rolling"));
 
   const started = performance.now();
-  while (performance.now() - started < 650) {
+  while (performance.now() - started < 700) {
     rollingIndexes.forEach((index) => {
       const value = randomDie();
       const face = diceButtons[index]?.querySelector(".die-face");
@@ -99,13 +110,31 @@ async function rollDice() {
 
   diceState.dice = diceState.dice.map((die, index) => diceState.held[index] ? die : randomDie());
   diceState.rolls += 1;
+  diceState.lastRoll = before;
   diceRolling = false;
+  writeDice();
+  renderDiceGame();
+}
+function undoAccidentalRoll() {
+  if (!diceState?.lastRoll || diceRolling) return;
+  const previous = diceState.lastRoll;
+  diceState.dice = [...previous.dice];
+  diceState.held = [...previous.held];
+  diceState.rolls = previous.rolls;
+  diceState.lastRoll = null;
+  writeDice();
+  renderDiceGame();
+}
+function acceptRoll() {
+  if (!diceState) return;
+  diceState.lastRoll = null;
   writeDice();
   renderDiceGame();
 }
 function chooseScore(key) {
   const player = diceState.players[diceState.current];
   if (!player || player.scores[key] != null || diceState.rolls === 0 || diceRolling) return;
+  diceState.lastRoll = null;
   player.scores[key] = scoreCategory(key, diceState.dice);
   const everyoneDone = diceState.players.every((p) => availableScores(p).length === 0);
   if (everyoneDone) {
@@ -121,6 +150,7 @@ function chooseScore(key) {
   diceState.phase = "pass";
   diceState.rolls = 0;
   diceState.held = [false,false,false,false,false];
+  diceState.lastRoll = null;
   writeDice();
   renderDiceGame();
 }
@@ -132,21 +162,33 @@ function renderHubHome() {
   const home = document.querySelector("main.home-shell .section-block");
   if (!home || document.querySelector(".game-night-hub")) return;
   const saved = readDice();
+  const resumable = saved && saved.phase !== "finished";
   const section = document.createElement("section");
   section.className = "section-block game-night-hub";
   section.innerHTML = `
     <div class="section-heading-row"><div><span class="eyebrow">Play & learn</span><h2>Game night hub</h2></div></div>
     <div class="hub-grid">
-      <button class="hub-card" data-hub="five-dice"><span class="hub-icon">⚄</span><strong>${saved && saved.phase !== "finished" ? "Resume Five Dice" : "Play Five Dice"}</strong><small>Pass-the-phone dice game · 2–6 players · works offline</small></button>
+      <button class="hub-card" data-hub="play"><span class="hub-icon">▶</span><strong>Play a Game</strong><small>Offline games you can play on this phone</small></button>
       <button class="hub-card" data-hub="rules"><span class="hub-icon">?</span><strong>Game Rules</strong><small>Learn every scorer game, plus Texas Hold’em</small></button>
+      ${resumable ? `<button class="hub-card resume-hub-card" data-hub="resume-five-dice"><span class="hub-icon">⚄</span><strong>Resume Five Dice</strong><small>Continue your unfinished game</small></button>` : ""}
     </div>`;
   home.before(section);
+}
+function renderPlayLibrary() {
+  const saved = readDice();
+  const resumable = saved && saved.phase !== "finished";
+  const app = document.getElementById("app");
+  app.innerHTML = `<main class="shell hub-screen"><section class="hub-top"><button class="secondary" data-hub="home">← Home</button><div><span class="eyebrow">Offline play</span><h1>Play a Game</h1><p>Games you can play directly on this phone. More can be added here over time.</p></div></section>
+  <section class="play-library-grid">
+    <button class="rules-library-card play-library-card" data-hub="new-five-dice"><strong>Five Dice</strong><small>2–6 players · pass the phone · works offline</small></button>
+    ${resumable ? `<button class="rules-library-card play-library-card resume-play-card" data-hub="resume-five-dice"><strong>Resume Five Dice</strong><small>Continue the unfinished game already on this phone</small></button>` : ""}
+  </section></main>`;
 }
 function renderDiceSetup() {
   const core = readCore();
   const names = (core.players || []).map((p) => p.name);
   const app = document.getElementById("app");
-  app.innerHTML = `<main class="shell hub-screen"><section class="hub-top"><button class="secondary" data-hub="home">← Home</button><div><span class="eyebrow">Offline play</span><h1>Five Dice</h1><p>Pass the phone. Roll up to three times, hold any dice, then choose one scoring category. You may scratch any open category for zero if the roll does not score there.</p></div></section>
+  app.innerHTML = `<main class="shell hub-screen"><section class="hub-top"><button class="secondary" data-hub="play">← Play a Game</button><div><span class="eyebrow">Offline play</span><h1>Five Dice</h1><p>Pass the phone. Roll up to three times, hold any dice, then choose one scoring category. You may scratch any open category for zero if the roll does not score there.</p></div></section>
   <section class="panel dice-setup"><div class="field"><label>Players</label><select data-dice-setup="count">${[2,3,4,5,6].map(n => `<option value="${n}" ${n===setupCount?"selected":""}>${n}</option>`).join("")}</select></div>
   <datalist id="hub-player-names">${names.map(n => `<option value="${escapeText(n)}"></option>`).join("")}</datalist>
   <div class="dice-player-fields">${Array.from({length:setupCount}, (_,i) => `<div class="field"><label>Player ${i+1}</label><input list="hub-player-names" data-dice-name="${i}" placeholder="Name" /></div>`).join("")}</div>
@@ -165,12 +207,13 @@ function renderDiceGame() {
   const p = diceState.players[diceState.current];
   const app = document.getElementById("app");
   const canScore = diceState.rolls > 0;
-  app.innerHTML = `<main class="hub-turn-screen dice-game" style="--turn-colour:${currentColour()}"><section class="dice-top"><button class="secondary" data-hub="home">← Home</button><div><span class="eyebrow">${escapeText(p.name)}’s turn</span><h1>${escapeText(p.name)}</h1><p>Roll ${Math.min(diceState.rolls + 1, 3)} of 3 · Total score ${totalFor(p)}</p></div></section>
-  <section class="dice-board"><div class="dice-row">${diceState.dice.map((d,i) => `<button class="die ${diceState.held[i]?"held":""}" data-die-index="${i}" ${diceState.rolls===0?"disabled":""}>${dieFace(d)}<small>${diceState.held[i]?"Held":"Tap to hold"}</small></button>`).join("")}</div>
-  <button class="primary wide-button roll-button" data-dice-action="roll" ${diceState.rolls>=3?"disabled":""}>${diceState.rolls===0?"Roll dice":diceState.rolls>=3?"Choose a score":"Roll again"}</button></section>
-  <section class="panel score-choice"><div class="score-choice-heading"><div><h2>Choose score</h2><p>Any open category can be used. A zero means you can scratch that category.</p></div></div><div class="category-grid">${availableScores(p).map(([key,label]) => {
+  const hasUndo = Boolean(diceState.lastRoll);
+  app.innerHTML = `<main class="hub-turn-screen dice-game" style="--turn-colour:${currentColour()}"><section class="dice-top"><button class="secondary" data-hub="home">← Home</button><div><span class="eyebrow">${escapeText(p.name)}’s turn</span><h1>${escapeText(p.name)}</h1><p>${diceState.rolls === 0 ? "Ready for roll 1 of 3" : `Roll ${diceState.rolls} of 3 complete`} · Total score ${totalFor(p)}</p></div></section>
+  <section class="dice-board"><div class="dice-row">${diceState.dice.map((d,i) => `<button class="die ${diceState.held[i]?"held":""}" data-die-index="${i}" ${diceState.rolls===0 || hasUndo?"disabled":""}>${dieFace(d)}<small>${diceState.held[i]?"Held":"Tap to hold"}</small></button>`).join("")}</div>
+  ${hasUndo ? `<div class="roll-safety"><strong>Roll complete.</strong><span>Keep it, or undo if the roll was accidental.</span><div><button class="secondary" data-dice-action="undo-roll">Undo accidental roll</button><button class="primary" data-dice-action="keep-roll">Keep roll</button></div></div>` : `<button class="primary wide-button roll-button" data-dice-action="roll" ${diceState.rolls>=3?"disabled":""}>${diceState.rolls===0?"Roll dice":diceState.rolls>=3?"Choose a score":"Roll again"}</button>`}</section>
+  <section class="panel score-choice"><div class="score-choice-heading"><div><h2>Choose score</h2><p>${hasUndo ? "Confirm the roll above before holding dice or choosing a score." : "Any open category can be used. A zero means you can scratch that category."}</p></div></div><div class="category-grid">${availableScores(p).map(([key,label]) => {
     const value = canScore ? scoreCategory(key,diceState.dice) : null;
-    return `<button class="category-card ${value===0?"scratch-option":""}" data-score-category="${key}" ${canScore?"":"disabled"}><span>${escapeText(label)}${value===0?`<small>Scratch</small>`:""}</span><strong>${canScore?value:"—"}</strong></button>`;
+    return `<button class="category-card ${value===0?"scratch-option":""}" data-score-category="${key}" ${canScore && !hasUndo?"":"disabled"}><span>${escapeText(label)}${value===0?`<small>Scratch</small>`:""}</span><strong>${canScore?value:"—"}</strong></button>`;
   }).join("")}</div></section>
   <section class="panel compact-scoreboard"><h2>Scores</h2>${diceState.players.map((pl,i)=>`<div class="dice-score-line ${i===diceState.current?"active":""}"><span style="color:${pl.colour}">${escapeText(pl.name)}</span><strong>${totalFor(pl)}</strong></div>`).join("")}</section></main>`;
 }
@@ -219,7 +262,7 @@ function startDice() {
   diceState = {
     version: 1,
     players: names.map((name,index)=>({ name, colour: playerColour(name,index), scores: {} })),
-    current: 0, phase: "pass", dice: [1,1,1,1,1], held: [false,false,false,false,false], rolls: 0, startedAt: new Date().toISOString()
+    current: 0, phase: "pass", dice: [1,1,1,1,1], held: [false,false,false,false,false], rolls: 0, lastRoll: null, startedAt: new Date().toISOString()
   };
   writeDice();
   renderDiceGame();
@@ -231,8 +274,11 @@ document.addEventListener("click", (event) => {
   if (hub) {
     event.preventDefault(); event.stopPropagation();
     if (hub.dataset.hub === "home") return goHome();
+    if (hub.dataset.hub === "play") return renderPlayLibrary();
     if (hub.dataset.hub === "rules") return renderRulesLibrary();
     if (hub.dataset.hub === "holdem") return renderHoldemRules();
+    if (hub.dataset.hub === "new-five-dice") { diceState = null; return renderDiceSetup(); }
+    if (hub.dataset.hub === "resume-five-dice") { diceState = readDice(); return diceState && diceState.phase !== "finished" ? renderDiceGame() : renderPlayLibrary(); }
     if (hub.dataset.hub === "five-dice") { diceState = readDice(); return diceState && diceState.phase !== "finished" ? renderDiceGame() : renderDiceSetup(); }
   }
   const rule = event.target.closest("[data-rule-game]");
@@ -246,18 +292,30 @@ document.addEventListener("click", (event) => {
     if (action.dataset.diceAction === "start") return startDice();
     if (action.dataset.diceAction === "ready") { newTurn(); return renderDiceGame(); }
     if (action.dataset.diceAction === "roll") return rollDice();
+    if (action.dataset.diceAction === "undo-roll") return undoAccidentalRoll();
+    if (action.dataset.diceAction === "keep-roll") return acceptRoll();
     if (action.dataset.diceAction === "new") { clearDice(); return renderDiceSetup(); }
   }
   const die = event.target.closest("[data-die-index]");
-  if (die && diceState?.rolls > 0 && !diceRolling) {
+  if (die && diceState?.rolls > 0 && !diceRolling && !diceState.lastRoll) {
     event.preventDefault(); event.stopPropagation();
-    const i = Number(die.dataset.dieIndex); diceState.held[i] = !diceState.held[i]; writeDice(); renderDiceGame(); return;
+    const i = Number(die.dataset.dieIndex);
+    diceState.held[i] = !diceState.held[i];
+    writeDice();
+    renderDiceGame();
+    return;
   }
   const category = event.target.closest("[data-score-category]");
-  if (category) { event.preventDefault(); event.stopPropagation(); return chooseScore(category.dataset.scoreCategory); }
+  if (category) {
+    event.preventDefault(); event.stopPropagation();
+    return chooseScore(category.dataset.scoreCategory);
+  }
 });
 document.addEventListener("change", (event) => {
-  if (event.target.matches("[data-dice-setup='count']")) { setupCount = Number(event.target.value); renderDiceSetup(); }
+  if (event.target.matches("[data-dice-setup='count']")) {
+    setupCount = Number(event.target.value);
+    renderDiceSetup();
+  }
 });
 
 const appRoot = document.getElementById("app");
