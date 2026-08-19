@@ -1,4 +1,4 @@
-import { gameOrder, games } from "./games/index.js?v=21";
+import { gameOrder, games } from "./games/index.js?v=22";
 import { clone, escapeHtml, signed } from "./games/shared.js?v=12";
 
 const STORAGE_KEY = "multiGameScorer:v6";
@@ -802,6 +802,23 @@ app.addEventListener("click", (event) => {
 
   const patch = activeGame().handleClick ? activeGame().handleClick(gameState(), button) : null;
   if (patch) updateGame(patch);
+});
+
+window.addEventListener("mgs:player-colour-change", (event) => {
+  const playerId = event.detail?.playerId;
+  const color = event.detail?.color;
+  if (!playerId || !color) return;
+
+  let changed = false;
+  const players = state.players.map((player) => {
+    if (player.id !== playerId || player.color === color) return player;
+    changed = true;
+    return { ...player, color };
+  });
+  if (!changed) return;
+
+  state = { ...state, players };
+  saveState();
 });
 
 if ("serviceWorker" in navigator) {

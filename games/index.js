@@ -1,7 +1,7 @@
 import { canasta } from "./canasta.js?v=14";
 import { cribbage } from "./cribbage.js?v=21";
 import { euchre } from "./euchre.js?v=19";
-import { fiveHundred } from "./fiveHundred.js?v=12";
+import { fiveHundred } from "./fiveHundred.js?v=13";
 import { general } from "./general.js?v=19";
 import { golf } from "./golf.js?v=18";
 import { hearts } from "./hearts.js?v=12";
