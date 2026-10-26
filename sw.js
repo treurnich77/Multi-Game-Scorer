@@ -1,4 +1,4 @@
-const CACHE_NAME = "multi-game-scorer-v56";
+const CACHE_NAME = "multi-game-scorer-v57";
 const ASSETS = [
   "./",
   "./index.html",
@@ -39,8 +39,9 @@ const ASSETS = [
   "./games/phase10.js?v=19",
   "./games/general.js?v=19",
   "./games/cribbage.js?v=21",
-  "./manifest.json?v=16",
-  "./icon.svg?v=3"
+  "./manifest.json?v=18",
+  "./icons/icon-192.png?v=2",
+  "./icons/icon-512.png?v=2"
 ];
 
 self.addEventListener("install", (event) => {
@@ -53,13 +54,6 @@ self.addEventListener("activate", (event) => {
     const keys = await caches.keys();
     await Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)));
     await self.clients.claim();
-
-    const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
-    await Promise.all(windows.map(async (client) => {
-      try {
-        await client.navigate(client.url);
-      } catch {}
-    }));
   })());
 });
 
