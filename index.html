@@ -4,8 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0f5132" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="description" content="A mobile-friendly scorer for 500, Spades, Hearts, Canasta, and more, with saved players, offline play, rules, and match history." />
-    <link rel="manifest" href="./manifest.json?v=16" />
+    <link rel="manifest" href="./manifest.json?v=17" />
+    <link rel="icon" type="image/svg+xml" sizes="192x192" href="./icons/icon-192.svg?v=1" />
+    <link rel="icon" type="image/svg+xml" sizes="512x512" href="./icons/icon-512.svg?v=1" />
     <link rel="stylesheet" href="./styles.css?v=21" />
     <link rel="stylesheet" href="./mvp.css?v=1" />
     <link rel="stylesheet" href="./mobile-fix.css?v=3" />
@@ -18,6 +21,13 @@
     <link rel="stylesheet" href="./five-dice-v47.css?v=1" />
     <link rel="stylesheet" href="./five-dice-v48.css?v=2" />
     <title>Multi-Game Scorer</title>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js').catch(console.error);
+        });
+      }
+    </script>
   </head>
   <body>
     <div id="app"></div>
