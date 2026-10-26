@@ -1,64 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Scorer app icon">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Multi-Game Scorer app icon">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop stop-color="#0b6a3b"/>
-      <stop offset="1" stop-color="#06331f"/>
-    </linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
-      <stop stop-color="#ffe29a"/>
-      <stop offset=".38" stop-color="#d7a43d"/>
-      <stop offset=".72" stop-color="#8a5717"/>
-      <stop offset="1" stop-color="#f4c45f"/>
-    </linearGradient>
-    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#000" flood-opacity=".35"/></filter>
+    <linearGradient id="felt" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0f6b43"/><stop offset="1" stop-color="#042c1b"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff0a7"/><stop offset=".33" stop-color="#e9bd52"/><stop offset=".7" stop-color="#a96717"/><stop offset="1" stop-color="#f3cf6b"/></linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="8" stdDeviation="7" flood-color="#000" flood-opacity=".38"/></filter>
   </defs>
-  <rect width="512" height="512" rx="104" fill="url(#bg)"/>
-  <rect x="14" y="14" width="484" height="484" rx="92" fill="none" stroke="url(#gold)" stroke-width="18"/>
-  <rect x="31" y="31" width="450" height="450" rx="78" fill="none" stroke="#5f3c12" stroke-width="4" opacity=".75"/>
-  <g filter="url(#shadow)">
-    <text x="256" y="132" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="76" letter-spacing="2" fill="url(#gold)" stroke="#5a360b" stroke-width="2">SCORER</text>
-    <path d="M92 153h123m82 0h123" stroke="#d9a743" stroke-width="5" stroke-linecap="round"/>
-    <path d="M256 144l11 11-11 11-11-11z" fill="#e7b94f"/>
-
-    <g transform="translate(66 190) rotate(-8 80 92)">
-      <rect width="118" height="180" rx="14" fill="#f7f1df" stroke="#d9cfbb" stroke-width="3"/>
-      <text x="18" y="45" font-family="Georgia,serif" font-size="39" font-weight="900" fill="#111">A</text><text x="20" y="79" font-size="34">♠</text>
-    </g>
-    <g transform="translate(112 174) rotate(-1 80 92)">
-      <rect width="118" height="180" rx="14" fill="#f7f1df" stroke="#d9cfbb" stroke-width="3"/>
-      <text x="18" y="45" font-family="Georgia,serif" font-size="39" font-weight="900" fill="#b11818">K</text><text x="20" y="79" font-size="34" fill="#b11818">♦</text>
-    </g>
-    <g transform="translate(158 187) rotate(7 80 92)">
-      <rect width="118" height="180" rx="14" fill="#f7f1df" stroke="#d9cfbb" stroke-width="3"/>
-      <text x="18" y="45" font-family="Georgia,serif" font-size="39" font-weight="900" fill="#111">Q</text><text x="20" y="79" font-size="34">♣</text>
-    </g>
-
-    <g transform="translate(78 327) rotate(-6)">
-      <rect width="300" height="126" rx="11" fill="#efe7d0" stroke="#cfc3a8" stroke-width="3"/>
-      <path d="M12 32h276M12 61h276M12 90h276M70 10v105M130 10v105M190 10v105M250 10v105" stroke="#3c6f56" stroke-width="2" opacity=".75"/>
-      <text x="82" y="27" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#195b39">P1</text>
-      <text x="142" y="27" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#195b39">P2</text>
-      <text x="202" y="27" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#195b39">P3</text>
-      <text x="258" y="27" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#195b39">P4</text>
-      <path d="M84 46l7 7 11-15m44 9l7 7 11-15m43 10l7 7 11-15m43 9l7 7 11-15" fill="none" stroke="#6b6b65" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M84 74l7 7 11-15m44 9l7 7 11-15m43 10l7 7 11-15" fill="none" stroke="#6b6b65" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M84 102l7 7 11-15m103 9l7 7 11-15m43 9l7 7 11-15" fill="none" stroke="#6b6b65" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-    </g>
-
-    <g transform="translate(243 222) rotate(-7)">
-      <rect width="104" height="104" rx="25" fill="#fffdf7" stroke="#d7d3c8" stroke-width="3"/>
-      <g fill="#171717"><circle cx="29" cy="29" r="8"/><circle cx="75" cy="29" r="8"/><circle cx="52" cy="52" r="8"/><circle cx="29" cy="75" r="8"/><circle cx="75" cy="75" r="8"/></g>
-    </g>
-    <g transform="translate(330 207) rotate(7)">
-      <rect width="104" height="104" rx="25" fill="#fffdf7" stroke="#d7d3c8" stroke-width="3"/>
-      <g fill="#171717"><circle cx="29" cy="27" r="8"/><circle cx="75" cy="27" r="8"/><circle cx="29" cy="52" r="8"/><circle cx="75" cy="52" r="8"/><circle cx="29" cy="77" r="8"/><circle cx="75" cy="77" r="8"/></g>
-    </g>
-
-    <g transform="translate(266 397) rotate(-31)">
-      <rect x="0" y="0" width="205" height="22" rx="11" fill="#b77722"/>
-      <rect x="150" y="0" width="34" height="22" fill="#d9a53d"/>
-      <rect x="184" y="0" width="21" height="22" rx="8" fill="#c94d42"/>
-      <path d="M0 0l-28 11L0 22z" fill="#e7c98e"/><path d="M-28 11l12-4v8z" fill="#1d1d1d"/>
+  <rect width="512" height="512" fill="#06351f"/>
+  <g transform="translate(38 38)">
+    <rect width="436" height="436" rx="88" fill="url(#felt)" stroke="url(#gold)" stroke-width="10"/>
+    <g filter="url(#shadow)">
+      <g transform="translate(64 55) rotate(-12 56 85)"><rect width="103" height="154" rx="13" fill="#fbf6e9" stroke="#d8cfbd" stroke-width="3"/><text x="14" y="42" font-family="Georgia,serif" font-size="36" font-weight="900">A</text><text x="15" y="77" font-size="37">♠</text></g>
+      <g transform="translate(126 41) rotate(-4 56 85)"><rect width="103" height="154" rx="13" fill="#fbf6e9" stroke="#d8cfbd" stroke-width="3"/><text x="14" y="42" font-family="Georgia,serif" font-size="36" font-weight="900" fill="#c01822">A</text><text x="15" y="77" font-size="37" fill="#c01822">♥</text></g>
+      <g transform="translate(202 41) rotate(4 56 85)"><rect width="103" height="154" rx="13" fill="#fbf6e9" stroke="#d8cfbd" stroke-width="3"/><text x="14" y="42" font-family="Georgia,serif" font-size="36" font-weight="900">A</text><text x="15" y="77" font-size="37">♣</text></g>
+      <g transform="translate(269 55) rotate(12 56 85)"><rect width="103" height="154" rx="13" fill="#fbf6e9" stroke="#d8cfbd" stroke-width="3"/><text x="14" y="42" font-family="Georgia,serif" font-size="36" font-weight="900" fill="#c01822">A</text><text x="15" y="77" font-size="37" fill="#c01822">♦</text></g>
+      <g transform="translate(92 148) rotate(-3 130 65)">
+        <rect width="260" height="132" rx="10" fill="#f2ead6" stroke="#d3c5a7" stroke-width="3"/>
+        <rect x="10" y="10" width="240" height="29" rx="4" fill="#0b5b38"/>
+        <g fill="#fff" font-family="Arial,sans-serif" font-size="14" font-weight="800" text-anchor="middle"><text x="49" y="30">P1</text><text x="92" y="30">P2</text><text x="135" y="30">P3</text><text x="178" y="30">P4</text><text x="222" y="30">TOTAL</text></g>
+        <g stroke="#527460" stroke-width="2" opacity=".75"><path d="M10 39h240M10 68h240M10 97h240M10 122h240"/><path d="M70 10v112M113 10v112M156 10v112M199 10v112"/></g>
+      </g>
+      <g transform="translate(253 211) rotate(-24)"><rect width="148" height="20" rx="9" fill="#d89b20"/><rect x="111" width="23" height="20" fill="#d3a542"/><rect x="132" width="16" height="20" rx="6" fill="#c94e47"/><path d="M0 0l-26 10L0 20z" fill="#e5c58d"/><path d="M-26 10l10-4v8z" fill="#222"/></g>
+      <text x="218" y="325" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-size="43" font-weight="900" letter-spacing="1" fill="url(#gold)" stroke="#633b08" stroke-width="2">MULTI GAME</text>
+      <text x="218" y="381" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-size="57" font-weight="900" letter-spacing="1" fill="url(#gold)" stroke="#633b08" stroke-width="2">SCORER</text>
+      <path d="M95 397h246" stroke="#d6a644" stroke-width="4" stroke-linecap="round"/>
     </g>
   </g>
 </svg>
