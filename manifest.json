@@ -1,8 +1,9 @@
 {
+  "id": "./",
   "name": "Multi-Game Scorer",
   "short_name": "Scorer",
-  "description": "Score 500, Spades, Hearts, and more from an Android-friendly standalone app.",
-  "start_url": "./index.html",
+  "description": "Score 500, Spades, Hearts, Canasta, dice games and more from a mobile-friendly standalone app.",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0f5132",
@@ -10,10 +11,16 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "./icon.svg?v=3",
-      "sizes": "any",
+      "src": "./icons/icon-192.svg?v=1",
+      "sizes": "192x192",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.svg?v=1",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ]
 }
